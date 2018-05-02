@@ -1,0 +1,307 @@
+%%%%%%%%%%%%%%%%%%%%%%% file template.tex %%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% This is a general template file for the LaTeX package SVJour3
+% for Springer journals.          Springer Heidelberg 2010/09/16
+%
+% Copy it to a new file with a new name and use it as the basis
+% for your article. Delete % signs as needed.
+%
+% This template includes a few options for different layouts and
+% content for various journals. Please consult a previous issue of
+% your journal as needed.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% First comes an example EPS file -- just ignore it and
+% proceed on the \documentclass line
+% your LaTeX will extract the file if required
+\begin{filecontents*}{example.eps}
+%!PS-Adobe-3.0 EPSF-3.0
+%%BoundingBox: 19 19 221 221
+%%CreationDate: Mon Sep 29 1997
+%%Creator: programmed by hand (JK)
+%%EndComments
+gsave
+newpath
+  20 20 moveto
+  20 220 lineto
+  220 220 lineto
+  220 20 lineto
+closepath
+2 setlinewidth
+gsave
+  .4 setgray fill
+grestore
+stroke
+grestore
+\end{filecontents*}
+%
+\RequirePackage{fix-cm}
+%
+%\documentclass{svjour3}                     % onecolumn (standard format)
+%\documentclass[smallcondensed]{svjour3}     % onecolumn (ditto)
+\documentclass[smallextended]{svjour3}       % onecolumn (second format)
+%\documentclass[twocolumn]{svjour3}          % twocolumn
+%
+\smartqed  % flush right qed marks, e.g. at end of proof
+%
+\usepackage{graphicx}
+\usepackage{tkz-graph}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{amsfonts}
+\usepackage{subcaption}
+\usepackage{hyperref}
+%\usepackage{pdflscape} % Landscape pages
+\usepackage{color}	% Different font colors
+\usepackage{enumerate}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{color}
+
+\captionsetup{compatibility=false}
+
+
+\tikzset{
+every edge/.style={fill=none} 
+every node/.style={shape=circle,fill=gray!40,draw }}
+
+
+
+%\newtheorem{proposition}{Proposition}
+%\newtheorem{obsservation}{Observation}
+%\newtheorem{corollary}{Corollary}
+%newtheorem{lemma}{Lemma}
+%\newtheorem{problem}{Problem}
+%
+% \usepackage{mathptmx}      % use Times fonts if available on your TeX system
+%
+% insert here the call for the packages your document requires
+%\usepackage{latexsym}
+% etc.
+%
+% please place your own definitions here and don't use \def but
+% \newcommand{}{}
+%
+% Insert the name of "your journal" with
+% \journalname{myjournal}
+%
+\begin{document}
+
+\title{Insert your title here%\thanks{Grants or other notes
+%about the article that should go on the front page should be
+%placed here. General acknowledgments should be placed at the end of the article.}
+}
+\subtitle{Do you have a subtitle?\\ If so, write it here}
+
+%\titlerunning{Short form of title}        % if too long for running head
+
+\author{First Author         \and
+        Second Author %etc.
+}
+
+%\authorrunning{Short form of author list} % if too long for running head
+
+\institute{F. Author \at
+              first address \\
+              Tel.: +123-45-678910\\
+              Fax: +123-45-678910\\
+              \email{fauthor@example.com}           %  \\
+%             \emph{Present address:} of F. Author  %  if needed
+           \and
+           S. Author \at
+              second address
+}
+
+\date{Received: date / Accepted: date}
+% The correct dates will be entered by the editor
+
+
+\maketitle
+
+\begin{abstract}
+\keywords{}
+% \PACS{PACS code1 \and PACS code2 \and more}
+% \subclass{MSC code1 \and MSC code2 \and more}
+\end{abstract}
+
+\section{Introduction}
+\label{intro}
+The minimum broadcast time consists of a set of communication nodes with a subset of source nodes. 
+The task is to disseminate a signal to every node in a shortest possible time while abiding by communication rules.
+An \emph{informed} node is a node that has received the signal.
+Otherwise, a node is \emph{non-informed}.
+At the beginning, the set of informed nodes is exactly the set of sources.
+An informed node $u$ can send the signal to a non-informed node $v$ if $u$ and $v$ are located within a communication vicinity of each other.
+
+The continuous time is divided into discrete time steps.
+At each time step, every informed node can forward the signal to at most one non-informed neighbor.
+The number of informed nodes at some time step can therefore be up to double the number of informed nodes at the previous time step.
+%\subsection{Motivation and Related Work}
+%This communication protocol differs from various wireless communication models where a signal can be relayed to all nodes within a visibility range of a sender.
+%An example of a practical application is a communication among processors.
+%The applications are however not confined to wired networks.
+%Situations where the signals have to cover large distances typically assume sending the signal to one neighbor at a time.
+%This is common in satellite communication.
+%
+\section{Network Model and Notation}
+
+The communication network is represented by an undirected unweighted graph $G=(V,E)$ and a subset of nodes $S\subseteq V$. 
+Broadcasting is defined as a sequence of sets $S=V_0\subseteq\dots\subseteq V_k = V$ where each $V_i$ represents the nodes informed after time step $i$, $0\leq i\leq k$.
+For each node $v\in V_i\setminus V_{i-1}$, there exists a single node $p(v)\in V_{i-1}$ adjacent to $v$, which forwarded the signal to $v$.
+Also, for every two distinct nodes $u,v\in V_i\setminus V_{i-1}$ we have $p(u)\neq p(v)$.
+The optimization problem in question is defined as follows:
+\begin{problem}\label{prob:min}
+Given $G=(V,E)$ and $S\subseteq V$, find a shortest sequence $S=V_0\subseteq\dots\subseteq V_k=V$ and a mapping $p:V_i\to V_{i-1}$, such that for each $v\in V\setminus S:\{v,p(v)\}\in E$, and for each $\{u,v\}\subseteq V_i\setminus V_{i-1}: p(u)\neq p(v)$.
+\end{problem}
+For convenience, we define the set $A=\{(i,j),(j,i):\{i,j\}\in E\}$ that consists of all arcs that can be derived by directing edges in $E$.
+The set of neighbors of $v\in V$ in $G$ is denoted as $N(v)$.
+\section{Exact methods}
+
+Problem \ref{prob:min} can be formulated as an integer linear program and solved to optimality. In this section, we present two different modeling approaches. 
+
+\subsection{Broadcast time model}
+The first studied model is a straightforward formulation of the problem. Consider variables $$ x_{ij}^t=\begin{cases} 1, \text{ if } j\in V\setminus S \text{ becomes informed in time } t \text{ and } p(j)=i,\\ 0, \text{ otherwise},
+\end{cases}
+$$
+and a variable $c$ representing the number of necessary time steps.
+The worst case scenario is when $G$ is a path $v_1,\dots,v_n$ with $S=\{v_1\}$. 
+In such an instance, the necessary number of time steps is $n-1$, which gives a trivial upper bound on $c$.
+Problem \ref{prob:min} is then formulated as follows: 
+
+\begin{subequations}\label{mod:basic}
+\begin{align}
+\label{mod:basic:obj} \min c \\ 
+\label{mod:basic:onefromroot} \sum_{i \in N(s)}x^1_{si} & \leq 1 & s\in S,\\
+\label{mod:basic:singlein} \sum\limits_{t=1}^{n-1}\sum\limits_{j\in N(i)}x_{ji}^t & = 1 & i\in V \setminus S,\\
+\label{mod:basic:uniqueTout} \sum\limits_{j\in N(i)}x_{ij}^t & \leq 1  & t=1,\dots,n-1,i\in V,\\
+\label{mod:basic:tIncreases} \sum\limits_{j\in N(i)}x_{ij}^t &\leq\sum\limits_{u=1}^{t-1}\sum\limits_{k\in N(i)\setminus\{j\}} x_{ki}^u  & i\in V\setminus S, t=2,\dots,n-1,\\
+\label{mod:basic:tcrel} \sum\limits_{t=1}^{n-1}t\sum\limits_{j\in N(i)}x_{ij}^t & \leq c &  i\in V,\\
+\label{mod:basic:positiveCost}x_{ij}^1 & = 0 & (i,j)\in A, i \not\in S,\\
+\label{mod:basic:dim}&&x \in \{0,1\}^{A\times V}, c \in\{1,\dots,n-1\}.
+\end{align}~
+\end{subequations}
+
+Constraints \eqref{mod:basic:onefromroot} indicate that source nodes transmit in the first time step.
+By \eqref{mod:basic:singlein}, all non-source nodes have a single predecessor.
+Constraints \eqref{mod:basic:uniqueTout} enforce that each node transmits the signal to at most one neighbor at each time step.
+The requirement that only informed nodes can relay a signal is modeled by \eqref{mod:basic:tIncreases}. 
+The maximum time step at which any transmission takes place is captured by \eqref{mod:basic:tcrel}, and finally, \eqref{mod:basic:positiveCost} states that a node that is not a source never transmits in the first time step.
+
+\subsection{Binomial tree model}
+
+The following method solves Problem \ref{prob:min} by solving a sequence of decision problems:
+\begin{problem}
+\label{prob:dec}
+Given $G=(V,E)$, $S\subseteq V$ and $k\in \mathbb{N}$, is there a sequence $S=V_0\subseteq\dots\subseteq V_k=V$ and a mapping $p:V_i\to V_{i-1}$, such that for each $v\in V\setminus S:\{v,p(v)\}\in E$ and for each $\{u,v\}\subseteq V_i\setminus V_{i-1}: p(u)\neq p(v)$?
+\end{problem}
+For a deadline $k$, at most $|S|\cdot 2^k$ nodes can be informed within $k$ steps. 
+%Therefore, we assume $n\leq 2^k|S|.
+This can be achieved when arcs along which signals initiated at sources $s\in S$ are transmitted form binomial trees $B^k$ of order $k$ rooted at $s$.
+Hence, if there is a partition of $G$ into $|S|$ truncated binomial trees of order at most $k$ rooted at sources, then $(G,S,k)$ is a YES instance of Problem \ref{prob:dec}.
+Finding a partition of $G$ into $|S|$ truncated binomial trees can be equivalently formulated as finding a partition of $G$ into $|S|$ (complete) binomial trees in $G'$ constructed from $G$ as follows:
+Let $\alpha\coloneqq |S|\cdot 2^k-|V|$, and let $K_\alpha=(V_\alpha,E_\alpha)$ be a complete graph on $\alpha$ nodes.
+Each node in $K_\alpha$ is connected to every node $v\in V$ in the original graph $G$.
+Thus, $G'=(V',E')$ with $V'=V\cup V_\alpha$ and $E'=E\cup E_\alpha\cup \{\{u,v\}: u\in V \wedge v\in V_\alpha\}$.
+The set of arcs $A'$ is constructed by creating two arcs of opposite orientation for each edge, but arcs with orientation from $V_\alpha$ to $V$ are excluded. 
+Formally, $A'=A\cup\{(u,v),(v,u): \{u,v\}\in E_\alpha\}\cup\{(u,v):u\in V \wedge v\in V_\alpha\}$.
+\begin{lemma}
+\label{lem:probeq}
+For an instance $(G,S,k)$ of problem \ref{prob:dec}, all nodes in $G$ become informed within $k$ time steps iff 
+there exists a partition of $G'$ into $|S|$ oriented binomial trees $B^k_1,\dots,B^k_{|S|}$ of order $k$ rooted at sources in $S$,
+such that for each $B^k_i=(V_i,A_i)$ we have that $A_i\cap\{(u,v):u \in V_\alpha \wedge v\in V_i\}=\emptyset$. 
+\end{lemma}
+\begin{proof}
+TODO\qed
+\end{proof}
+
+Let $I=\{1,\dots,2^k\}$ and $J=\{1,\dots,|S|\}$.
+The ILP model based on partition into binomial trees uses only one type of variables
+$$
+y_{ij}^v=\begin{cases}
+1, \text{ if  node } v \text{ is the } i\text{-th node of the } j \text{-th binomial tree,}\\
+0, \text{ otherwise},
+\end{cases}
+$$
+where $v\in V'$, $i\in I$ and $j\in J$. 
+The use of these variables requires a systematic numbering of nodes of a binomial tree $B^k=(V^k,E^k)$.
+I.e., we need a bijective mapping $\beta: V^k \to I$.
+A suitable mapping $\beta$ is defined recursively:
+\begin{equation}
+\label{eq:beta}
+\beta(v)=\begin{cases}
+1,\text{ if } v \text{ is a root of } B^k,\\
+\beta(p(v)) + 2^{k-deg^+(v)-1}, \text{ otherwise}.
+\end{cases}
+\end{equation}
+
+It is also useful to define the set $C(i)$ of $\beta$-values of children of node $v$ with $\beta(v)=i$ in $B^k$:
+\begin{equation}
+C(i)=\{2^l+i:l=\lceil\log_2 i\rceil,\dots,k-1\}.
+\end{equation}
+The values of the variables must fulfill constraints
+
+\begin{subequations}\label{mod:partition}
+\begin{align}
+\label{mod:part:nodeBelongs} \sum\limits_{i\in I}\sum\limits_{j\in J}y^v_{ij} & = 1 & v\in V',\\
+\label{mod:part:treeHasIJ} \sum\limits_{v\in V'}y^v_{ij} & = 1 & i\in I,j\in J,\\
+\label{mod:part:source1} y_{1s}^s & = 1  & s\in S,\\
+%\label{mod:part:noReturn} y^u_{ij}+y^v_{lj} &\leq 1 & i\in I,l\in C(i), j\in J, u\in V_\alpha,v\in V,\\
+\label{mod:part:followArcs} y^u_{ij}+y^v_{lj} &\leq 1 & i\in I,l\in C(i), j\in J, u,v\in V',(u,v)\not\in A',\\
+\label{mod:part:dim}&&y \in \{0,1\}^{I\times J\times V'}.
+\end{align}~
+\end{subequations}
+
+As the model solves the decision problem, it suffices to find any feasible solution, and no objective function is needed.
+The interpretation of constraints \eqref{mod:part:nodeBelongs} is that every node in the extended graph $G'$ belongs to exactly one binomial tree.
+By \eqref{mod:part:treeHasIJ} is ensured that there is always exactly one $i$-th node of each binomial tree.
+Next, \eqref{mod:part:source1} enforce that source nodes are the first nodes in corresponding binomial trees, in accordance with definition of the mapping $\beta$.
+The remaining constraints \eqref{mod:part:followArcs} guarantee that the arcs of binomial trees follow arcs in $A'$.
+The definition of $A'$ also prevents arcs of the binomial trees to be oriented from $V_\alpha$ to $V$.
+In other words, once the signal leaves the original graph $G$ and enters $K_\alpha$, it cannot return back to $G$.
+Without this requirement, it could be possible to find a partition of $G'$ into binomial trees, even though no partition of $G$ into truncated binomial trees exists.
+
+%\begin{acknowledgements}
+%If you'd like to thank anyone, place your comments here
+%and remove the percent signs.
+%\end{acknowledgements}
+
+% BibTeX users please use one of
+%\bibliographystyle{spbasic}      % basic style, author-year citations
+%\bibliographystyle{spmpsci}      % mathematics and physical sciences
+%\bibliographystyle{spphys}       % APS-like style for physics
+%\bibliography{}   % name your BibTeX data base
+
+% Non-BibTeX users please use
+\begin{thebibliography}{}
+%
+% and use \bibitem to create references. Consult the Instructions
+% for authors for reference list style.
+%
+\bibitem{chu17}
+Chu, X., Chen, Y.,
+Time division inter‐satellite link topology generation problem: Modeling and solution,
+International Journal of Satellite Communications and Networking, 194 -- 206, 36 (2017)
+
+\bibitem{janseni95}
+Jansen, K., M\"uller, H.,
+The minimum broadcast time problem for several processor networks, 
+Theoretical Computer Science, 69 -- 85, 147 (1995)
+
+\bibitem{middendorf93}
+Middendorf, M.,
+Minimum broadcast time is NP-complete for 3-regular planar graphs and deadline 2,
+Information Processing Letters, 281 -- 287, 46 (1993)
+
+% Format for Journal Reference
+%Author, Article title, Journal, Volume, page numbers (year)
+% Format for books
+%\bibitem{RefB}
+%Author, Book title, page numbers. Publisher, place (year)
+% etc
+\end{thebibliography}
+
+\end{document}
+% end of file template.tex
+

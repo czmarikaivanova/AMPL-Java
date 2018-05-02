@@ -1,1 +1,4 @@
 bin/
+data/
+*.log
+*.aux

@@ -1,29 +1,32 @@
 import java.io.IOException;
-import com.ampl.AMPL;
-import com.ampl.DataFrame;
-import com.ampl.Objective;
-import com.ampl.Parameter;
-import com.ampl.Variable;
+
 public class Main {
 
-	public static void main(String[] args) {
-		AMPL ampl = new AMPL();
-		try {
-			ampl.read("models/sat.mod");
-			ampl.readData("data/ampl00.dat");
-			ampl.setOption("solver", "cplex");
-			ampl.solve();
-			Variable y = ampl.getVariable("y");
-			Variable x = ampl.getVariable("x");
-			DataFrame dfy = y.getValues();
-			DataFrame dfx = x.getValues();
-			System.out.println(dfy);
-			System.out.println(dfx);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			ampl.close();
+	public static void main(String[] args) throws IOException {
+		Runner r = null;
+		System.out.println("iter: " + args[0]);
+		if (args.length == 1) { // ampl data file as an input
+			r = new Runner(args[0]);
+			r.run();
+		} else if (args.length == 0) { // default file
+			r = new Runner("data/disconnected.dat");
+			r.run();
+		} else if (args.length == 4) { // 4 args for generating a random graph
+										// (# iteration, # nodes, # sources,
+										// density of edges)
+			int iter = Integer.parseInt(args[0]);
+			int n = Integer.parseInt(args[1]);
+			int s = Integer.parseInt(args[2]);
+			float d = Float.parseFloat(args[3]);
+			for (int i = 0; i < iter; i++) {
+				Graph g = new Graph(n, s, d);
+				String amplFileName = g.generateAMPL();
+				r = new Runner(amplFileName);
+				r.run();
+			}
+		} else {
+			throw new IOException("Incorrect number of arguments ");
 		}
-	}
 
+	}
 }
