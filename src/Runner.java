@@ -21,7 +21,7 @@ public class Runner {
 			ampl.setOption("solver", "cplex");
 			// tell cplex to output stuff
 			ampl.setOption("cplex_options", "mipdisplay 2 mipinterval 100");
-
+			//ampl.setBoolOption("relax_integrality",true);
 			// First solve basic model
 			System.out.println("Reading sat model...");
 			ampl.read("models/sat.mod");
@@ -34,7 +34,7 @@ public class Runner {
 
 			// Solve decision problem
 			System.out.println("Reading partition model...");
-			ampl.read("models/partition.mod");
+			ampl.read("models/partition-apex.mod");
 			ampl.readData(amplFileName);
 			Parameter k = ampl.getParameter("k");
 			System.out.println("Setting parameter k of the decision problem to the objective value: " + objval);
