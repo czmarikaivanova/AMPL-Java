@@ -1,5 +1,3 @@
-%%%%%%%%%%%%%%%%%%%%%%% file template.tex %%%%%%%%%%%%%%%%%%%%%%%%%
-%
 % This is a general template file for the LaTeX package SVJour3
 % for Springer journals.          Springer Heidelberg 2010/09/16
 %
@@ -203,20 +201,20 @@ Hence, if there is a partition of $G$ into $|S|$ truncated binomial trees of ord
 Finding a partition of $G$ into $|S|$ truncated binomial trees can be equivalently formulated as finding a partition of $G$ into $|S|$ (complete) binomial trees in $G'$ constructed from $G$ as follows:
 Let $\alpha\coloneqq |S|\cdot 2^k-|V|$, and let $K_\alpha=(V_\alpha,E_\alpha)$ be a complete graph on $\alpha$ nodes.
 Each node in $K_\alpha$ is connected to every node $v\in V$ in the original graph $G$.
-Thus, $G'=(V',E')$ with $V'=V\cup V_\alpha$ and $E'=E\cup E_\alpha\cup \{\{u,v\}: u\in V \wedge v\in V_\alpha\}$.
-The set of arcs $A'$ is constructed by creating two arcs of opposite orientation for each edge, but arcs with orientation from $V_\alpha$ to $V$ are excluded. 
-Formally, $A'=A\cup\{(u,v),(v,u): \{u,v\}\in E_\alpha\}\cup\{(u,v):u\in V \wedge v\in V_\alpha\}$.
+Thus, $G''=(V'',E'')$ with $V'=V\cup V_\alpha$ and $E''=E\cup E_\alpha\cup \{\{u,v\}: u\in V \wedge v\in V_\alpha\}$.
+The set of arcs $A''$ is constructed by creating two arcs of opposite orientation for each edge, but arcs with orientation from $V_\alpha$ to $V$ are excluded. 
+Formally, $A''=A\cup\{(u,v),(v,u): \{u,v\}\in E_\alpha\}\cup\{(u,v):u\in V \wedge v\in V_\alpha\}$.
 \begin{lemma}
 \label{lem:probeq}
 For an instance $(G,S,k)$ of problem \ref{prob:dec}, all nodes in $G$ become informed within $k$ time steps iff 
-there exists a partition of $G'$ into $|S|$ oriented binomial trees $B^k_1,\dots,B^k_{|S|}$ of order $k$ rooted at sources in $S$,
+there exists a partition of $G''$ into $|S|$ oriented binomial trees $B^k_1,\dots,B^k_{|S|}$ of order $k$ rooted at sources in $S$,
 such that for each $B^k_i=(V_i,A_i)$ we have that $A_i\cap\{(u,v):u \in V_\alpha \wedge v\in V_i\}=\emptyset$. 
 \end{lemma}
 \begin{proof}
 TODO\qed
 \end{proof}
 
-Let $I=\{1,\dots,2^k\}$ and $J=\{1,\dots,|S|\}$.
+Let $I=\{1,\dots,2^k\}$.
 The ILP model based on partition into binomial trees uses only one type of variables
 $$
 y_{ij}^v=\begin{cases}
@@ -224,10 +222,12 @@ y_{ij}^v=\begin{cases}
 0, \text{ otherwise},
 \end{cases}
 $$
-where $v\in V'$, $i\in I$ and $j\in J$. 
-The use of these variables requires a systematic numbering of nodes of a binomial tree $B^k=(V^k,E^k)$.
+where $v\in V''$, $i\in I$ and $j\in S$. 
+The use of these variables requires a systematic numbering of nodes of a binomial tree $B^k=(V^k,E^k)$, so that a node number determines a unique position in $B^k$.
 I.e., we need a bijective mapping $\beta: V^k \to I$.
-A suitable mapping $\beta$ is defined recursively:
+A suitable mapping $\beta$ assigns values increasingly with decreasing outgoing degree. 
+If there is an ambiguity, a node whose parent has a lower number is assigned a lower number.
+This mapping is defined recursively as
 \begin{equation}
 \label{eq:beta}
 \beta(v)=\begin{cases}
@@ -240,16 +240,27 @@ It is also useful to define the set $C(i)$ of $\beta$-values of children of node
 \begin{equation}
 C(i)=\{2^l+i:l=\lceil\log_2 i\rceil,\dots,k-1\}.
 \end{equation}
+
+With these definitions it is straightforward to specify constraints that enforce desired values for $y$-variables.
+An obvious weakness of this approach is  that the number of nodes increases to $|V'|=\mathcal{O}(n|S|)$, and the dimension of variables is thus $\mathcal{O}(n^2|S|^2)$.
+However, once a suitable partition is found, the arcs of binomial trees contained in $K_\alpha$ can be diversely shuffled while preserving the layour of binomial trees in $G$.
+Instead of adding the entire complete graph $K_\alpha$, a single node $v_0$ with a loop $(v_0,v_0)$ is connected as an apex to the original $G$.
+Let us denote this graph as $G'$.
+The requirement for partition into binomial trees has to be adjusted.
+The subtrees contained in $G$ remain unchanged, every arc $(u,v)\in A_i, i=1,\dots,|S|$ in $G''$ with $u\in V$ and $v\in V_\alpha$ becomes $(u,v_0)$ in $G'$,
+and every $(u,v)\in A_\alpha$ becomes $(v_0,v_0)$.
+So, $v_0$ acts as a universal node that can substitute several nodes in each binomial tree.
+
 The values of the variables must fulfill constraints
 
 \begin{subequations}\label{mod:partition}
 \begin{align}
-\label{mod:part:nodeBelongs} \sum\limits_{i\in I}\sum\limits_{j\in J}y^v_{ij} & = 1 & v\in V',\\
+\label{mod:part:nodeBelongs} \sum\limits_{i\in I}\sum\limits_{j\in J}y^v_{ij} & = 1 & v\in V,\\
 \label{mod:part:treeHasIJ} \sum\limits_{v\in V'}y^v_{ij} & = 1 & i\in I,j\in J,\\
 \label{mod:part:source1} y_{1s}^s & = 1  & s\in S,\\
 %\label{mod:part:noReturn} y^u_{ij}+y^v_{lj} &\leq 1 & i\in I,l\in C(i), j\in J, u\in V_\alpha,v\in V,\\
-\label{mod:part:followArcs} y^u_{ij}+y^v_{lj} &\leq 1 & i\in I,l\in C(i), j\in J, u,v\in V',(u,v)\not\in A',\\
-\label{mod:part:dim}&&y \in \{0,1\}^{I\times J\times V'}.
+\label{mod:part:followArcs} y^u_{ij}+y^v_{lj} &\leq 1 & i\in I,l\in C(i), j\in S, u,v\in V',(u,v)\not\in A',\\
+\label{mod:part:dim}&&y \in \{0,1\}^{I\times S\times V'}.
 \end{align}~
 \end{subequations}
 
