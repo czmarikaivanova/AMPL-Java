@@ -60,6 +60,7 @@ grestore
 
 \captionsetup{compatibility=false}
 
+\newtheorem{observation}[theorem]{\textbf{Observation}}
 
 \tikzset{
 every edge/.style={fill=none} 
@@ -205,6 +206,7 @@ Thus, $G''=(V'',E'')$ with $V''=V\cup V_\alpha$ and $E''=E\cup E_\alpha\cup \{\{
 The set of arcs $A''$ is constructed by creating two arcs of opposite orientation for each edge, but arcs with orientation from $V_\alpha$ to $V$ are excluded. 
 Formally, $A''=A\cup\{(u,v),(v,u): \{u,v\}\in E_\alpha\}\cup\{(u,v):u\in V \wedge v\in V_\alpha\}$.
 
+Let $I=\{1,\dots,2^k\}$.
 For a directed rooted binomial tree $B^k=(V^k,A^k)$, we define a systematic numbering of nodes in $V^k$, so that a node number determines a unique position in $B^k$.
 I.e., we need a bijective mapping $\beta: V^k \to I$.
 A suitable mapping $\beta$ assigns values increasingly with decreasing outgoing degree. 
@@ -218,26 +220,28 @@ This mapping is defined recursively as
 \end{cases}
 \end{equation}
 
-It is also useful to define the set $C(i)$ of $\beta$-values of children of node $v$ with $\beta(v)=i$ in $B^k$:
-\begin{equation}
-C(i)=\{2^l+i:l=\lceil\log_2 i\rceil,\dots,k-1\}.
-\end{equation}
-
-
 \begin{proposition}
 \label{lem:probeq}
 For an instance $(G,S,k)$ of Problem \ref{prob:dec}, all nodes in $G$ become informed within $k$ time steps iff 
-there exists a partition of $G''$ into $|S|$ oriented binomial trees $B^k_1,\dots,B^k_{|S|}$ of order $k$ rooted at sources in $S$,
-such that for each $B^k_i=(V_i,A_i)$ we have that $A_i\cap\{(u,v):u \in V_\alpha \wedge v\in V_i\}=\emptyset$. 
+there exists a partition of $G''$ into $|S|$ directed binomial trees $B^k_1,\dots,B^k_{|S|}$ of order $k$ rooted at sources in $S$,
+such that for each $B^k_i=(V^k_i,A^k_i)$ we have that $A_i\cap\{(u,v):u \in V_\alpha \wedge v\in V^k_i\}=\emptyset$. 
 \end{proposition}
 \begin{proof}
 Assume there are directed rooted binomial trees $B^k_1,\dots B^k_{|S|}$ covering $V''$. 
-Nodes in $V''$ are divided into a sequence of subsets $S=V_0\subseteq\dots\subseteq V_k=V''$ such that $V_i=\{v:\beta(v)\in \{1,\dots,2^i\}\}$,
+Nodes in $V$ are divided into a sequence of subsets $S=V_0\subseteq\dots\subseteq V_k=V$ such that $V_i=\{v\in V:\beta(v)\in \{1,\dots,2^i\}\}$,
 and $p(v)=u$ is a parent of $v$ in a corresponding binomial tree.
+Observe that sets $V_{i+1}\setminus V_i$ divide nodes into equivalence classes according to their out-degree.
+The out-degree decreases with increasing $i$.
+This implies together with the fact that every arc $(u,v)\in A_i:deg^+(v)<deg^+(u)$, that the mapping $p$ satisfies the requirements specified by Problem \ref{prob:dec}.
+
+Conversely, suppose there is a sequence of subsets and a mapping $p$ in $G$ with the desired properties.
+For some node $u\in V_i$, there is at most $k-i$ nodes $u$ such that $p(u)=v$.
+Truncated binomial trees covering $G$ can then be constructed simply by following the mapping $p$.
+The remaining arcs that complement binomial trees are distributed along $A''\setminus A$.
+
 \qed
 \end{proof}
 
-Let $I=\{1,\dots,2^k\}$.
 The ILP model based on partition into binomial trees uses only one type of variables
 $$
 y_{is}^v=\begin{cases}
@@ -256,6 +260,10 @@ The subtrees contained in $G$ remain unchanged, every arc $(u,v)\in A_i, i=1,\do
 and every $(u,v)\in A_\alpha$ becomes $(v_0,v_0)$.
 So, $v_0$ acts as a universal node that can substitute several nodes in each binomial tree.
 
+Let us define the set $C(i)$ of $\beta$-values of children of node $v$ with $\beta(v)=i$ in $B^k$:
+\begin{equation}
+C(i)=\{2^l+i:l=\lceil\log_2 i\rceil,\dots,k-1\}.
+\end{equation}
 The values of the variables must fulfill constraints
 
 \begin{subequations}\label{mod:partition}
@@ -277,6 +285,18 @@ The remaining constraints \eqref{mod:part:followArcs} guarantee that the arcs of
 The definition of $A'$ also prevents arcs of the binomial trees to be oriented from $V_\alpha$ to $V$.
 In other words, once the signal leaves the original graph $G$ and enters $K_\alpha$, it cannot return back to $G$.
 Without this requirement, it could be possible to find a partition of $G'$ into binomial trees, even though no partition of $G$ into truncated binomial trees exists.
+
+\subsection{Lower bounds}
+In this section, we present several lower bounding techniques. 
+An optimal solution is obtained by solving a sequence of decision problems with varying delay $k$. 
+It is therefore useful to determine tight lower and upper bounds in order to arrive in the optimum after solving as few decision problems as possible.
+Obvious bounds for a general graph instance are given by
+\begin{observation}
+For an instance (G,S) of Problem \ref{prob:min},
+$$\lceil\log\frac{n}{s}\rceil\leq k \leq n-1.$$
+\end{observation}
+These bounds can be tightened after exploiting the input graph properties. 
+We aim to investigate bounds for various graph classes.
 
 %\begin{acknowledgements}
 %If you'd like to thank anyone, place your comments here
