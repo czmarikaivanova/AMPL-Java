@@ -152,7 +152,8 @@ For each node $v\in V_i\setminus V_{i-1}$, there exists a single node $p(v)\in V
 Also, for every two distinct nodes $u,v\in V_i\setminus V_{i-1}$ we have $p(u)\neq p(v)$.
 The optimization problem in question is defined as follows:
 \begin{problem}\label{prob:min}
-Given $G=(V,E)$ and $S\subseteq V$, find a shortest sequence $S=V_0\subseteq\dots\subseteq V_k=V$ and a mapping $p:V_i\to V_{i-1}$, such that for each $v\in V\setminus S:\{v,p(v)\}\in E$, and for each $\{u,v\}\subseteq V_i\setminus V_{i-1}: p(u)\neq p(v)$.
+Given $G=(V,E)$ and $S\subseteq V$, find a sequence $S=V_0\subseteq\dots\subseteq V_k=V$ of minimum lenght $k$ 
+and a mapping $p:V\setminus S\to V$, such that for each $v\in V\setminus S:\{v,p(v)\}\in E$, and for each $\{u,v\}\subseteq V_i\setminus V_{i-1}: p(u)\neq p(v)$.
 \end{problem}
 For convenience, we define the set $A=\{(i,j),(j,i):\{i,j\}\in E\}$ that consists of all arcs that can be derived by directing edges in $E$.
 The set of neighbors of $v\in V$ in $G$ is denoted as $N(v)$.
@@ -268,11 +269,11 @@ The values of the variables must fulfill constraints
 
 \begin{subequations}\label{mod:partition}
 \begin{align}
-\label{mod:part:nodeBelongs} \sum\limits_{i\in I}\sum\limits_{j\in J}y^v_{ij} & = 1 & v\in V,\\
-\label{mod:part:treeHasIJ} \sum\limits_{v\in V'}y^v_{ij} & = 1 & i\in I,j\in J,\\
+\label{mod:part:nodeBelongs} \sum\limits_{i\in I}\sum\limits_{s\in S}y^v_{is} & = 1 & v\in V,\\
+\label{mod:part:treeHasIJ} \sum\limits_{v\in V'}y^v_{is} & = 1 & i\in I,s\in S,\\
 \label{mod:part:source1} y_{1s}^s & = 1  & s\in S,\\
 %\label{mod:part:noReturn} y^u_{ij}+y^v_{lj} &\leq 1 & i\in I,l\in C(i), j\in J, u\in V_\alpha,v\in V,\\
-\label{mod:part:followArcs} y^u_{ij}+y^v_{lj} &\leq 1 & i\in I,l\in C(i), j\in S, u,v\in V',(u,v)\not\in A',\\
+\label{mod:part:followArcs} y^u_{is}+y^v_{ls} &\leq 1 & i\in I,l\in C(i), s\in S, u,v\in V',(u,v)\not\in A',\\
 \label{mod:part:dim}&&y \in \{0,1\}^{I\times S\times V'}.
 \end{align}~
 \end{subequations}
@@ -293,7 +294,7 @@ It is therefore useful to determine tight lower and upper bounds in order to arr
 Obvious bounds for a general graph instance are given by
 \begin{observation}
 For an instance (G,S) of Problem \ref{prob:min},
-$$\lceil\log\frac{n}{s}\rceil\leq k \leq n-1.$$
+$$\left\lceil\log\frac{n}{s}\right\rceil\leq k \leq n-s.$$
 \end{observation}
 These bounds can be tightened after exploiting the input graph properties. 
 We aim to investigate bounds for various graph classes.
