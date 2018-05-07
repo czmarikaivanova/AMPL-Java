@@ -130,12 +130,12 @@ every node/.style={shape=circle,fill=gray!40,draw }}
 The minimum broadcast time consists of a set of communication nodes with a subset of source nodes. 
 The task is to disseminate a signal to every node in a shortest possible time while abiding by communication rules.
 An \emph{informed} node is a node that has received the signal.
-Otherwise, a node is \emph{non-informed}.
+Otherwise, a node is \emph{uninformed}.
 At the beginning, the set of informed nodes is exactly the set of sources.
-An informed node $u$ can send the signal to a non-informed node $v$ if $u$ and $v$ are located within a communication vicinity of each other.
+An informed node $u$ can send the signal to a uninformed node $v$ if $u$ and $v$ are located within a communication vicinity of each other.
 
 The continuous time is divided into discrete time steps.
-At each time step, every informed node can forward the signal to at most one non-informed neighbor.
+At each time step, every informed node can forward the signal to at most one uninformed neighbor.
 The number of informed nodes at some time step can therefore be up to double the number of informed nodes at the previous time step.
 %\subsection{Motivation and Related Work}
 %This communication protocol differs from various wireless communication models where a signal can be relayed to all nodes within a visibility range of a sender.
@@ -153,7 +153,7 @@ Also, for every two distinct nodes $u,v\in V_i\setminus V_{i-1}$ we have $p(u)\n
 The optimization problem in question is defined as follows:
 \begin{problem}\label{prob:min}
 Given $G=(V,E)$ and $S\subseteq V$, find a sequence $S=V_0\subseteq\dots\subseteq V_k=V$ of minimum lenght $k$ 
-and a mapping $p:V\setminus S\to V$, such that for each $v\in V\setminus S:\{v,p(v)\}\in E$, and for each $\{u,v\}\subseteq V_i\setminus V_{i-1}: p(u)\neq p(v)$.
+and a mapping $p:V\setminus S\to V$, such that for each $v\in V\setminus S:\{v,p(v)\}\in E$, and for each $u,v\in V_i\setminus V_{i-1}: p(u)\neq p(v)\Leftrightarrow u\neq v$.
 \end{problem}
 For convenience, we define the set $A=\{(i,j),(j,i):\{i,j\}\in E\}$ that consists of all arcs that can be derived by directing edges in $E$.
 The set of neighbors of $v\in V$ in $G$ is denoted as $N(v)$.
@@ -162,7 +162,12 @@ The set of neighbors of $v\in V$ in $G$ is denoted as $N(v)$.
 Problem \ref{prob:min} can be formulated as an integer linear program and solved to optimality. In this section, we present two different modeling approaches. 
 
 \subsection{Broadcast time model}
-The first studied model is a straightforward formulation of the problem. Consider variables $$ x_{ij}^t=\begin{cases} 1, \text{ if } j\in V\setminus S \text{ becomes informed in time } t \text{ and } p(j)=i,\\ 0, \text{ otherwise},
+The first studied model is a straightforward formulation of the problem.
+Consider variables 
+$$ x_{ij}^t=
+\begin{cases} 
+1, \text{ if } j\in V_t \text{ and } p(j)=i,\\ 
+0, \text{ otherwise},
 \end{cases}
 $$
 and a variable $c$ representing the number of necessary time steps.
@@ -194,7 +199,8 @@ The maximum time step at which any transmission takes place is captured by \eqre
 The following method solves Problem \ref{prob:min} by solving a sequence of decision problems:
 \begin{problem}
 \label{prob:dec}
-Given $G=(V,E)$, $S\subseteq V$ and $k\in \mathbb{N}$, is there a sequence $S=V_0\subseteq\dots\subseteq V_k=V$ and a mapping $p:V_i\to V_{i-1}$, such that for each $v\in V\setminus S:\{v,p(v)\}\in E$ and for each $\{u,v\}\subseteq V_i\setminus V_{i-1}: p(u)\neq p(v)$?
+Given $G=(V,E)$, $S\subseteq V$ and $k\in \mathbb{N}$, is there a sequence $S=V_0\subseteq\dots\subseteq V_k=V$ 
+and a mapping $p:V\setminus S\to V$, such that for each $v\in V\setminus S:\{v,p(v)\}\in E$ and for each  $u,v\in V_i\setminus V_{i-1}: p(u)\neq p(v)\Leftrightarrow u\neq v$?
 \end{problem}
 For a deadline $k$, at most $|S|\cdot 2^k$ nodes can be informed within $k$ steps. 
 %Therefore, we assume $n\leq 2^k|S|.
@@ -220,26 +226,30 @@ This mapping is defined recursively as
 \beta(p(v)) + 2^{k-deg^+(v)-1}, \text{ otherwise}.
 \end{cases}
 \end{equation}
-
-\begin{proposition}
-\label{lem:probeq}
+\begin{observation}\label{obs:deg}
+For each $i\in\{1,\dots,k\}$, the set $\{v\in V^k: 1\leq\beta(v)\leq2^i\}\setminus\{v\in V^k:1\leq\beta(v)\leq2^{i-1}\}$ contains nodes with out-degree $k-i$.
+\end{observation}
+\begin{observation}\label{obs:childdeg}
+Descendants of $v\in V^k$ with $deg^+(v)=l$ have out-degree $0,\dots,l-1$.
+\end{observation}
+\begin{proposition}\label{lem:probeq}
 For an instance $(G,S,k)$ of Problem \ref{prob:dec}, all nodes in $G$ become informed within $k$ time steps iff 
 there exists a partition of $G''$ into $|S|$ directed binomial trees $B^k_1,\dots,B^k_{|S|}$ of order $k$ rooted at sources in $S$,
 such that for each $B^k_i=(V^k_i,A^k_i)$ we have that $A_i\cap\{(u,v):u \in V_\alpha \wedge v\in V^k_i\}=\emptyset$. 
 \end{proposition}
 \begin{proof}
 Assume there are directed rooted binomial trees $B^k_1,\dots B^k_{|S|}$ covering $V''$. 
-Nodes in $V$ are divided into a sequence of subsets $S=V_0\subseteq\dots\subseteq V_k=V$ such that $V_i=\{v\in V:\beta(v)\in \{1,\dots,2^i\}\}$,
+Nodes in $V$ are divided into a sequence of subsets $S=V_0\subseteq\dots\subseteq V_k=V$ such that $V_i=\{v\in V:1\leq\beta(v)\leq 2^i\}$,
 and $p(v)=u$ is a parent of $v$ in a corresponding binomial tree.
-Observe that sets $V_{i+1}\setminus V_i$ divide nodes into equivalence classes according to their out-degree.
-The out-degree decreases with increasing $i$.
-This implies together with the fact that every arc $(u,v)\in A_i:deg^+(v)<deg^+(u)$, that the mapping $p$ satisfies the requirements specified by Problem \ref{prob:dec}.
+For $u,v\in V_i\setminus V_{i-1}$ we have from \ref{obs:deg} that $deg^+(u)=deg^+(v)=k-i$.
+Furthermore, $p(u)\neq p(v)$ must hold, because due to \ref{obs:childdeg} no node has two descendants with the same out-degree.
+These observations can be applied because the mapping $p$ corresponds to arcs in binomial trees $B^k_1,\dots,B^k_{|S|}$. 
 
 Conversely, suppose there is a sequence of subsets and a mapping $p$ in $G$ with the desired properties.
-For some node $u\in V_i$, there is at most $k-i$ nodes $u$ such that $p(u)=v$.
+For $1\leq i\leq k$, $|V_i|\geq2|V_{i-1}|$ must hold, because otherwise $\forall u,v\in V_i:p(u)\neq p(v)\Leftrightarrow u\neq v$ could not be satisfied.
+For some node $v\in V_i$, there is at most $k-i$ nodes $u$ such that $p(u)=v$.
 Truncated binomial trees covering $G$ can then be constructed simply by following the mapping $p$.
 The remaining arcs that complement binomial trees are distributed along $A''\setminus A$.
-
 \qed
 \end{proof}
 
@@ -251,7 +261,7 @@ y_{is}^v=\begin{cases}
 \end{cases}
 $$
 where $v\in V''$ and $i\in I $. 
-With the definitions above, it is straightforward to specify constraints that enforce desired values for $y$-variables.
+With the definition of $G''$ above, it is straightforward to specify constraints that enforce desired values for $y$-variables.
 An obvious weakness of this approach is  that the number of nodes increases to $|V''|=\mathcal{O}(n|S|)$, and the dimension of variables is thus $\mathcal{O}(n^2|S|^2)$.
 However, once a suitable partition is found, the arcs of binomial trees contained in $K_\alpha$ can be diversely shuffled while preserving the layour of binomial trees in $G$.
 Instead of adding the entire complete graph $K_\alpha$, a single node $v_0$ with a loop $(v_0,v_0)$ is connected as an apex to the original $G$.
