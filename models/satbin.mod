@@ -14,10 +14,11 @@ set N{i in V} within V = {j in V: (i,j) in E || (j,i) in E};
 
 # Variables:
 var x{(i,j) in A, t in 1..tmax} binary;
-var c >= 0, <= tmax, integer;
+#var c >= 0, <= tmax, integer;
+var c{t in 1..tmax} binary;
 
 # Objective function:
-minimize time: c;
+minimize time: sum{t in 1..tmax} c[t];
 
 # Constraints:
 
@@ -36,11 +37,12 @@ subject to oneAtATime {t in 1..tmax, i in V}:
 subject to inIfOut {i in V, t in 2..tmax: i not in S}:
 	sum{j in N[i]} x[i,j,t] <= sum{u in 1..t-1, l in N[i]} x[l,i,u];
 
-subject to xcrel {(i,j) in A}:
-	sum{t in 1..tmax} (t *x[i,j,t]) <= c;
+#subject to xcrel {(i,j) in A}:
+#	sum{t in 1..tmax} (t *x[i,j,t]) <= c;
 
-#subject to xcrel {i in V}:
-#	sum{t in 1..tmax} t * (sum{j in N[i]} x[i,j,t]) <= c;
+subject to xcrel {i in V, t in 1..tmax}:
+	sum{j in N[i]} x[i,j,t] <= c[t];
+
 
 subject to noFirst{(i,j) in A: i not in S}:
 	x[i,j,1] = 0;
