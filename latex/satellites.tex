@@ -57,6 +57,8 @@ grestore
 \usepackage{enumitem}
 \usepackage{mathtools}
 \usepackage{color}
+\usepackage[]{algorithm2e}
+\SetKwRepeat{Do}{do}{while}
 
 \captionsetup{compatibility=false}
 
@@ -305,7 +307,7 @@ The definition of $A'$ also prevents arcs of the binomial trees to be oriented f
 In other words, once the signal leaves the original graph $G$ and enters $v_0$, it cannot return back to $G$.
 Without this requirement, it could be possible to find a partition of $G'$ into binomial trees, even though no partition of $G$ into truncated binomial trees exists.
 
-\subsection{Lower bounds}
+\section{Lower bounds}
 In this section, we investigate lower bounds on delay $k$ for several restrictions of input graphs.
 An optimal solution is obtained by solving a sequence of decision problems with varying $k$. 
 It is therefore desirable to determine tight lower and upper bounds in order to arrive in the optimum after solving as few decision problems as possible.
@@ -314,9 +316,40 @@ Obvious bounds for a general graph instance are given by
 For an instance (G,S) of Problem \ref{prob:min},
 $$\left\lceil\log\frac{n}{s}\right\rceil\leq k \leq n-s.$$
 \end{observation}
-%\begin{proposition}
-%For a $d-regular$ graph with a single source and $k\in \mathbb{N}$, $|V_k|\leq 
-%\end{proposition}
+
+
+\begin{algorithm}
+\KwData{$n,s,d$}
+\For{$i=1,\dots,d-1$} {
+$a_i\leftarrow 2^{d-i}$\;
+}
+$a\leftarrow 2$\;
+$k\leftarrow d$\;
+$c\leftarrow a + \sum_{i=1}^{d-1}a_i$\;
+\While {$c<n$} {
+$a\leftarrow a+a_{d-1}$\;
+$tmp\leftarrow\sum_{i=1}^{d-1}a_i$\;
+\For{$i=1,\dots,d-2$} {
+	$a_{d-i}\leftarrow a_{d-(i+1)}$\;
+}
+$a_1\leftarrow tmp$\;
+$c\leftarrow a + \sum_{i=1}^{d-1}a_i$\;
+$k\leftarrow k+1$\;
+}
+\Return $\lceil k/s \rceil$\;
+ \caption{Lower bound for $d$-regular graphs}
+\label{alg:dreg}
+\end{algorithm}
+
+
+\begin{proposition}
+If $G$ is an arbitrary graph with $n$ nodes, $s$ sources and each node has a degree at most $d$, Alg.~\ref{alg:dreg} calculates a lower bound for $k$ from Problem~\ref{prob:min} in $G$.
+\end{proposition}
+\begin{proof}
+\qed
+\end{proof}
+
+
 %\begin{acknowledgements}
 %If you'd like to thank anyone, place your comments here
 %and remove the percent signs.
