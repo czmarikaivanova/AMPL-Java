@@ -1,5 +1,5 @@
 # Set cardinalities:
-param k; # Not used here, only in the straightforward model
+#param k; # Not used here, only in the straightforward model
 param n; # Total number of satellites
 param s; # Number of source satellites
 param tmax = n - 1;
