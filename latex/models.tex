@@ -1,0 +1,147 @@
+\section{Exact methods}
+
+Problem \ref{prob:min} can be formulated as an integer linear program and solved to optimality. In this section, we present two different modeling approaches. 
+
+\subsection{Broadcast time model}
+The first studied model is a straightforward formulation of the problem.
+Consider variables 
+$$ x_{ij}^t=
+\begin{cases} 
+1, \text{ if } j\in V_t \text{ and } p(j)=i,\\ 
+0, \text{ otherwise},
+\end{cases}
+$$
+and a variable $c$ representing the number of necessary time steps.
+The worst case scenario is when $G$ is a path $v_1,\dots,v_n$ with $S=\{v_1\}$. 
+In such an instance, the necessary number of time steps is $n-1$, which gives a trivial upper bound on $c$.
+Problem \ref{prob:min} is then formulated as follows: 
+
+\begin{subequations}\label{mod:basic}
+\begin{align}
+\label{mod:basic:obj} \min c \\ 
+\label{mod:basic:onefromroot} \sum_{i \in N(s)}x^1_{si} & \leq 1 & s\in S,\\
+\label{mod:basic:singlein} \sum\limits_{t=1}^{n-1}\sum\limits_{j\in N(i)}x_{ji}^t & = 1 & i\in V \setminus S,\\
+\label{mod:basic:uniqueTout} \sum\limits_{j\in N(i)}x_{ij}^t & \leq 1  & t=1,\dots,n-1,i\in V,\\
+\label{mod:basic:tIncreases} \sum\limits_{j\in N(i)}x_{ij}^t &\leq\sum\limits_{u=1}^{t-1}\sum\limits_{k\in N(i)\setminus\{j\}} x_{ki}^u  & i\in V\setminus S, t=2,\dots,n-1,\\
+\label{mod:basic:tcrel} \sum\limits_{t=1}^{n-1}t\cdot x_{ij}^t & \leq c &  (i,j)\in A,\\
+%\label{mod:basic:tcrel} \sum\limits_{t=1}^{n-1}t\sum\limits_{j\in N(i)}x_{ij}^t & \leq c &  i\in V,\\
+\label{mod:basic:positiveCost}x_{ij}^1 & = 0 & (i,j)\in A, i \not\in S,\\
+\label{mod:basic:dim}&&x \in \{0,1\}^{A\times V}, c \in\{1,\dots,n-1\}.
+\end{align}~
+\end{subequations}
+
+Constraints \eqref{mod:basic:onefromroot} indicate that for each source node $s$, there is at most one adjacent node $i\in V_1$ such that $p(i)=s$.
+By \eqref{mod:basic:singlein}, for every non-source node, there is exactly one node $j$ such that $p(i)=j$.
+Constraints \eqref{mod:basic:uniqueTout} enforce that for each node $i\in V$ and each subset $V_t$, there is at most one adjacent node $j\in V_t$ with $p(j)=i$.
+The requirement that a non-source node has $j\in V_t:p(j)=i$ only if there exists $k\in V_{t-1}: p(i)=k$ is modeled by \eqref{mod:basic:tIncreases}. 
+%The requirement that only informed nodes can relay a signal is modeled by \eqref{mod:basic:tIncreases}. 
+%The maximum time step at which any transmission takes place is captured by \eqref{mod:basic:tcrel}, and finally, \eqref{mod:basic:positiveCost} states that a node that is not a source never transmits in the first time step.
+The length of the sequence of subsets is captured by \eqref{mod:basic:tcrel}, and finally, \eqref{mod:basic:positiveCost} state that if $p(j)\not\in S$ for some $j\in V$, then $j\not\in V_1$.
+\subsection{Binomial tree model}
+
+The following method solves Problem \ref{prob:min} by solving a sequence of decision problems:
+\begin{problem}
+\label{prob:dec}
+Given $G=(V,E)$, $S\subseteq V$ and $k\in \mathbb{N}$, is there a sequence $S=V_0\subseteq\dots\subseteq V_k=V$ 
+and a mapping $p:V\setminus S\to V$, such that for each $v\in V\setminus S:\{v,p(v)\}\in E$ and for each  $u,v\in V_i\setminus V_{i-1}: p(u)\neq p(v)\Leftrightarrow u\neq v$?
+\end{problem}
+For a delay $k$, at most $s\cdot 2^k$ nodes can be informed within $k$ steps. 
+%Therefore, we assume $n\leq 2^ks.
+This can be achieved when arcs along which signals initiated at sources $s\in S$ are transmitted form binomial trees $B^k$ of order $k$ rooted at $s$.
+Hence, if there is a partition of $G$ into $s$ truncated binomial trees of order at most $k$ rooted at sources, then $(G,S,k)$ is a YES instance of Problem \ref{prob:dec}.
+Finding a partition of $G$ into $s$ truncated binomial trees can be equivalently formulated as finding a partition of $G''$ into $s$ (complete) binomial trees, 
+where $G''$ is constructed from $G$ as follows:
+Let $\alpha\coloneqq s\cdot 2^k-|V|$, and let $K_\alpha=(V_\alpha,E_\alpha)$ be a complete graph on $\alpha$ nodes.
+Each node in $K_\alpha$ is connected to every node $v\in V$ in the original graph $G$.
+Thus, $G''=(V'',E'')$ with $V''=V\cup V_\alpha$ and $E''=E\cup E_\alpha\cup \{\{u,v\}: u\in V \wedge v\in V_\alpha\}$.
+The set of arcs $A''$ is constructed by creating two arcs of opposite orientation for each edge, but arcs with orientation from $V_\alpha$ to $V$ are excluded. 
+Formally, $A''=A\cup\{(u,v),(v,u): \{u,v\}\in E_\alpha\}\cup\{(u,v):u\in V \wedge v\in V_\alpha\}$.
+
+Let $I=\{1,\dots,2^k\}$.
+For a directed rooted binomial tree $B^k=(V^k,A^k)$, we define a systematic numbering of nodes in $V^k$, so that a node number determines a unique position in $B^k$.
+I.e., we need a bijective mapping $\beta: V^k \to I$.
+A suitable mapping $\beta$ assigns values increasingly with decreasing outgoing degree. 
+If there is an ambiguity, a node whose parent has a lower number is assigned a lower number.
+This mapping is defined recursively as
+\begin{equation}
+\label{eq:beta}
+\beta(v)=\begin{cases}
+1,\text{ if } v\in S \text{ is a root of } B^k,\\
+\beta(p(v)) + 2^{k-deg^+(v)-1}, \text{ otherwise}.
+\end{cases}
+\end{equation}
+\begin{observation}\label{obs:deg}
+For each $i\in\{1,\dots,k\}$, the set $\{v\in V^k: 1\leq\beta(v)\leq2^i\}\setminus\{v\in V^k:1\leq\beta(v)\leq2^{i-1}\}$ contains nodes with out-degree $k-i$.
+\end{observation}
+\begin{observation}\label{obs:childdeg}
+Children of $v\in V^k$ with $deg^+(v)=\ell$ have out-degree $0,\dots,\ell-1$.
+\end{observation}
+\begin{proposition}\label{lem:probeq}
+An instance $(G,S,k)$ of Problem \ref{prob:dec} is a YES-instance iff 
+there exists a partition of $G''$ into $s$ directed binomial trees $B^k_1,\dots,B^k_{s}$ of order $k$ rooted at sources in $S$,
+such that for each $B^k_i=(V^k_i,A^k_i)$ we have that $A^k_i\cap\{(u,v):u \in V_\alpha \wedge v\in V^k_i\}=\emptyset$. 
+\end{proposition}
+\begin{proof}
+Assume there is a node partition of $G''$ into directed rooted binomial trees $B^k_1,\dots B^k_{s}$. 
+Nodes in $V$ are divided into a sequence of subsets $S=V_0\subseteq\dots\subseteq V_k=V$ such that $V_i=\{v\in V:1\leq\beta(v)\leq 2^i\}$,
+and $p(v)$ is a parent of $v$ in a corresponding binomial tree.
+For $u,v\in V_i\setminus V_{i-1}$ we have from Observation \ref{obs:deg} that $deg^+(u)=deg^+(v)=k-i$.
+Furthermore, $p(u)\neq p(v)$ must hold, because due to \ref{obs:childdeg} no node has two children with the same out-degree.
+These observations can be applied because the mapping $p$ corresponds to arcs in binomial trees $B^k_1,\dots,B^k_{s}$. 
+
+Conversely, suppose there is a sequence of subsets and a mapping $p$ in $G$ with the desired properties.
+For $1\leq i\leq k$, $|V_i|\geq2|V_{i-1}|$ must hold, because otherwise $\forall u,v\in V_i:p(u)\neq p(v)\Leftrightarrow u\neq v$ could not be satisfied.
+For some node $v\in V_i$, there is at most $k-i$ nodes $u$ such that $p(u)=v$.
+Truncated binomial trees covering $G$ can then be constructed simply by following the mapping $p$.
+The remaining arcs that complement binomial trees are distributed along $A''\setminus A$.
+\qed
+\end{proof}
+
+The ILP model based on partition into binomial trees uses only one type of variables
+$$
+y_{is}^v=\begin{cases}
+1, \text{ if  node } v \text{ is the } i\text{-th node of the binomial tree rooted at } s\in S,\\
+0, \text{ otherwise},
+\end{cases}
+$$
+where $v\in V''$ and $i\in I $. 
+With the definition of $G''$ above, it is straightforward to specify constraints that enforce desired values for $y$-variables.
+An obvious weakness of this approach is  that the number of nodes increases to $|V''|=\mathcal{O}(ns)$, and the dimension of variables is thus $\mathcal{O}(n^2s^2)$.
+However, once a suitable partition is found, the arcs of binomial trees contained in $K_\alpha$ can be diversely shuffled while preserving the layour of binomial trees in $G$.
+Instead of adding the entire complete graph $K_\alpha$, a single node $v_0$ with a loop $(v_0,v_0)$ is connected as an apex to the original $G$.
+Let us denote this multigraph as $G'=(V',E')$, where $V'=V\cup\{v_0\}$, $E'=E\cup\{\{u,v_0\}:u\in V\}\cup\{\{v_0\}\}$. 
+The arc set is then analogously defined as $A'=A\cup\{(u,v_0): u\in V\}\cup\{(v_0,v_0)\}$.
+The requirement for partition into binomial trees has to be adjusted accordingly.
+The subtrees contained in $G$ remain unchanged, every arc $(u,v)\in A^k_i, i=1,\dots,s$ in $G''$ with $u\in V$ and $v\in V_\alpha$ becomes $(u,v_0)$ in $G'$,
+and every $(u,v)\in A_\alpha$ becomes $(v_0,v_0)$.
+So, $v_0$ acts as a universal node that can substitute several nodes in each binomial tree.
+
+Let us define the set $C(i)$ of $\beta$-values of children of node $v$ with $\beta(v)=i$ in $B^k$:
+\begin{equation}
+C(i)=\{2^\ell+i:\ell=\lceil\log_2 i\rceil,\dots,k-1\}.
+\end{equation}
+The values of the variables must fulfill constraints
+
+\begin{subequations}\label{mod:partition}
+\begin{align}
+\label{mod:part:nodeBelongs} \sum\limits_{i\in I}\sum\limits_{s\in S}y^v_{is} & = 1 & v\in V,\\
+\label{mod:part:treeHasIJ} \sum\limits_{v\in V'}y^v_{is} & = 1 & i\in I,s\in S,\\
+\label{mod:part:source1} y_{1s}^s & = 1  & s\in S,\\
+%\label{mod:part:noReturn} y^u_{ij}+y^v_{lj} &\leq 1 & i\in I,l\in C(i), j\in J, u\in V_\alpha,v\in V,\\
+\label{mod:part:followArcs} y^u_{is}+y^v_{\ell s} &\leq 1 & i\in I,\ell\in C(i), s\in S, u,v\in V',(u,v)\not\in A',\\
+\label{mod:part:dim}&&y \in \{0,1\}^{I\times S\times V'}.
+\end{align}~
+\end{subequations}
+
+As the model solves the decision problem, it suffices to find any feasible solution, and no objective function is needed.
+The interpretation of constraints \eqref{mod:part:nodeBelongs} is that every node in the original graph $G$ belongs to exactly one binomial tree.
+Note that these constraints are quantified only over $V$ and not over $V'$.
+In this way it is achieved that $v_0$ can be a part of several binomial trees.
+By \eqref{mod:part:treeHasIJ} is ensured that there is always exactly one $i$-th node of each binomial tree.
+Next, \eqref{mod:part:source1} enforce that source nodes are the first nodes in corresponding binomial trees, in accordance with definition of the mapping $\beta$.
+The remaining constraints \eqref{mod:part:followArcs} guarantee that the arcs of binomial trees follow arcs in $A'$.
+The definition of $A'$ also prevents arcs of the binomial trees to be oriented from $V_\alpha$ to $V$.
+In other words, once the signal leaves the original graph $G$ and enters $v_0$, it cannot return back to $G$.
+Without this requirement, it could be possible to find a partition of $G'$ into binomial trees, even though no partition of $G$ into truncated binomial trees exists.
+
+
