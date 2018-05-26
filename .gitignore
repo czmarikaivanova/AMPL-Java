@@ -4,4 +4,4 @@ data/
 *.aux
 *.swp
 *.out
-latex/*.pdf
+*.pdf

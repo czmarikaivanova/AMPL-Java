@@ -146,6 +146,26 @@ The number of informed nodes at some time step can therefore be up to double the
 %Situations where the signals have to cover large distances typically assume sending the signal to one neighbor at a time.
 %This is common in satellite communication.
 %
+
+\subsection{Literature overview}
+
+MBT has been shown to be NP-complete on arbitrary graphs in \cite{slater81}. 
+The problem remains NP-complete even for several restricted communication networks \cite{jansen95} such as
+split graphs with delay $k=2$, chordal graphs,
+biparite and planar graphs with maximum degree 3 and a single source,
+several variants of grid graphs,
+bipartite planar graphs with delay $k=2$ and maximum degree 3. 
+Yet another NP-completeness result for 3-regular planar graphs with delay 2 is shown in \cite{middendorf93}.
+The problem is known to be Polynomial in trees
+Whether the problem is polynomial or NP-complete for split graphs with a single source was stated as an open questions in \cite{jansen95}.
+
+Approximation algorithms for MBT are studied in \cite{kortsarz95}. 
+The authors presented an $\mathcal{O}(\sqrt{n})$-additive approximation algorithm for broadcasting in general graphs.
+They further provide approximation algorithms for several graph classes with small separators with approximation ratio proportional to the separator size times $\log n$.
+
+A number of inexact methods has been proposed in the literature.
+Authors in \cite{hasson04} describe a meta heuristic ant algorithm for MBT and provide a comparison with other existing methods.
+
 \section{Network Model and Notation}
 
 The communication network is represented by a connected undirected unweighted graph $G=(V,E)$ and a subset of nodes $S\subseteq V$, where $|V|=n$ and $|S|=s$. 
@@ -312,20 +332,40 @@ Chu, X., Chen, Y.,
 Time division inter‐satellite link topology generation problem: Modeling and solution,
 International Journal of Satellite Communications and Networking, 194 -- 206, 36 (2017)
 
+\bibitem{farley81}
+Farley, A. M., Proskurowski, A.,
+Broadcasting in Trees with Multiple Originators,
+SIAM Journal on Algebraic Discrete Methods, 381 -- 386, 2, 4 (1981)
+
 \bibitem{grigni91}
 Grigni, M., Peleg, D.,
 Tight bounds on minimum broadcast networks
 Networks, 207-222, 4 (1991)
+
+\bibitem{hasson04} 
+Hasson, Y., Sipper, M.,
+A Novel Ant Algorithm for Solving the Minimum Broadcast Time Problem
+International Conference on Parallel Problem Solving from Nature, 775 -- 780 (2004)
 
 \bibitem{jansen95}
 Jansen, K., M\"uller, H.,
 The minimum broadcast time problem for several processor networks, 
 Theoretical Computer Science, 69 -- 85, 147 (1995)
 
+\bibitem{kortsarz95}
+Kortsarz, G., Peleg, D.,
+Approximation algorithms for minimum-time broadcast
+SIAM Journal on Discrete Mathematics, 401 -- 427, 8, 3 (1995)
+
 \bibitem{middendorf93}
 Middendorf, M.,
 Minimum broadcast time is NP-complete for 3-regular planar graphs and deadline 2,
 Information Processing Letters, 281 -- 287, 46 (1993)
+
+\bibitem{slater81}
+Slater, P. J., Cockayne, E. J., Hedetniemi, S.T.,
+Information dissemination in Trees,
+SIAM Journal on Computing, 692 -- 701, 10, 4 (1981)
 
 % Format for Journal Reference
 %Author, Article title, Journal, Volume, page numbers (year)
