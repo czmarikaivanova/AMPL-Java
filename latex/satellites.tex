@@ -156,15 +156,20 @@ biparite and planar graphs with maximum degree 3 and a single source,
 several variants of grid graphs,
 bipartite planar graphs with delay $k=2$ and maximum degree 3. 
 Yet another NP-completeness result for 3-regular planar graphs with delay 2 is shown in \cite{middendorf93}.
-The problem is known to be Polynomial in trees
+The problem is known to be polynomial in trees \cite{slater81}.
 Whether the problem is polynomial or NP-complete for split graphs with a single source was stated as an open questions in \cite{jansen95}.
 
-Approximation algorithms for MBT are studied in \cite{kortsarz95}. 
-The authors presented an $\mathcal{O}(\sqrt{n})$-additive approximation algorithm for broadcasting in general graphs.
-They further provide approximation algorithms for several graph classes with small separators with approximation ratio proportional to the separator size times $\log n$.
-
 A number of inexact methods has been proposed in the literature.
-Authors in \cite{hasson04} describe a meta heuristic ant algorithm for MBT and provide a comparison with other existing methods.
+One of the first works of this category is \cite{scheuermann84}, 
+where the authors introduce an exact dynamic programming algorithm based on generating all maximum matchings in an induced bipartite graph.
+Additional contribution of this paper are heuristic approaches for near optimal broadcasting.
+From more recent works we mention \cite{hasson04} which describes a meta heuristic ant algorithm for MBT and provides a comparison with other existing methods.
+The communication model is considered in an existing satellite navigation system in \cite{chu17}, where a greedy inexact methods is proposed together with a non-linear mathematical model.
+
+Approximation algorithms for MBT are studied in \cite{kortsarz95}. 
+The authors argue that methods presented in \cite{scheuermann84} provide no guarantee on the performance and state an $n$-node wheel as an example.
+They introduce an $\mathcal{O}(\sqrt{n})$-additive approximation algorithm for broadcasting in general graphs.
+They further provide approximation algorithms for several graph classes with small separators with approximation ratio proportional to the separator size times $\log n$.
 
 \section{Network Model and Notation}
 
@@ -344,7 +349,7 @@ Networks, 207-222, 4 (1991)
 
 \bibitem{hasson04} 
 Hasson, Y., Sipper, M.,
-A Novel Ant Algorithm for Solving the Minimum Broadcast Time Problem
+A Novel Ant Algorithm for Solving the Minimum Broadcast Time Problem,
 International Conference on Parallel Problem Solving from Nature, 775 -- 780 (2004)
 
 \bibitem{jansen95}
@@ -361,6 +366,11 @@ SIAM Journal on Discrete Mathematics, 401 -- 427, 8, 3 (1995)
 Middendorf, M.,
 Minimum broadcast time is NP-complete for 3-regular planar graphs and deadline 2,
 Information Processing Letters, 281 -- 287, 46 (1993)
+
+\bibitem{scheuermann84}
+Scheuermann, P., Wu, G.,
+Heuristic Algorithms for Broadcasting in Point-to-Point Computer Networks,
+IEEE Transactions on Computers, 804 -- 811, 33, 9 (1984)
 
 \bibitem{slater81}
 Slater, P. J., Cockayne, E. J., Hedetniemi, S.T.,
