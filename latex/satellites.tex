@@ -152,6 +152,7 @@ The communication network is represented by a connected undirected unweighted gr
 Broadcasting is defined as a sequence of sets $S=V_0\subseteq\dots\subseteq V_k = V$ where each $V_i$ represents the nodes informed after time step $i$, $0\leq i\leq k$.
 For each node $v\in V_i\setminus V_{i-1}$, there exists a single node $p(v)\in V_{i-1}$ adjacent to $v$, which forwarded the signal to $v$.
 Also, for every two distinct nodes $u,v\in V_i\setminus V_{i-1}$ we have $p(u)\neq p(v)$.
+The value $k$ is referred to as \emph{delay}.
 The optimization problem in question is defined as follows \cite{jansen95,middendorf93}:
 \begin{problem}\label{prob:min}
 Given $G=(V,E)$ and $S\subseteq V$, find a sequence $S=V_0\subseteq\dots\subseteq V_k=V$ of minimum length $k$ 
@@ -162,10 +163,21 @@ A degree, in-degree and out-degree of node $v$ in $G$ are denoted by $\text{deg}
 Whenever there is no danger of confusion, the subscript $G$ is omitted.
 The set of neighbors of $v\in V$ in $G$ is denoted by $N(v)$.
 
-For convenience we further define a graph $F_i=(V_i,E_i)$ with the edge set $E_i=\{\{v,p(v)\}:v\in V_i\}$.
-$F_i$ is a forest containing pruned binomial trees defined by the mapping $p$.
+For convenience, we consider the following definition of broadcast trees \cite{grigni91}:
+For $s\in S$, a broadcast tree $T_s$ with node set $V_{T_s}$ is a time-labeled directed subgraph of $G$ describing a broadcast originated by $s$ by the following rules:
+\begin{enumerate}
+\item $T_s$ is rooted at $s$ with arcs directed towards the leaves.
+\item Each node $v$ is labeled with an integer $t(v)$, where $t(s)=0$.
+\item Whenever $v$ is a parent of $u$ in $T_s$ $t(v)<t(u)$.
+\item Whenever $v$ and $u$ are siblings in $T_s$, $t(v)\neq t(u)$. 
+\end{enumerate}
+A set of trees $T=\{T_s:\cup_{s\in S}V_{T_s}=V\}$ forms a partition of $G$ into trees referred to as \emph{broadcast forest} (or \emph{broadcast protocol}?).
+$T$ can be derived from a given sequence of sets of nodes defining broadcasting and the mapping $p$.
+Given a broadcast forest $T$, the delay is determined as $k=\max_{v\in V}\{t(v)\}$.
+Further, let $T^i_s$ be a subtree of $T_s$ obtained by pruning all nodes $v\in V_{T_s}$ with $t(v)>i$.
+Analogously, we define $T^i=\{T^i_s:s\in S\}$. 
 
-%\input{models.tex}
+\input{models.tex}
 
 \section{Lower bounds}
 In this section, we study lower bounds on delay $k$ for several restrictions of input graphs.
@@ -177,23 +189,23 @@ For an instance (G,S) of Problem \ref{prob:min},
 $$\left\lceil\log\frac{n}{s}\right\rceil\leq k \leq n-s.$$
 \end{observation}
 
-Consider a $d$-regular graph with one source.
-The forest $H_k$ consists of a single tree.
-We investigate the number of leaves in $H_k$ and derive a lower bound on the dealy for this graph class.
-For $k=1,2$, $L(H_1)=L(H_2)=2$.
-For $k\geq 3$, $L(H_k)$ corresponds to the number of nodes with degree $1,\dots,d-1$ in $H_{k-1}$.
-It can also be interpreted as the sum of number of leaves in $H_{k-d+1},\dots,H_{k-1}$, which leads to the following formula
+Consider a $d$-regular graph with one source $s$.
+The broadcast forest $T$ consists of a single tree $T_s$.
+We investigate the number of leaves in $T_s$ and derive a lower bound on the dealy for this graph class.
+For $k=1,2$, $L(T^1_s)=L(T^2_s)=2$.
+For $k\geq 3$, $L(T^k_s)$ corresponds to the number of nodes with degree $1,\dots,d-1$ in $T^{k-1}_s$.
+It can also be interpreted as the sum of number of leaves in $T^{k-d+1}_s,\dots,T^{k-1}_s$, which leads to the following formula
 \begin{equation}
 \label{eq:leafrec}
-L(H_k)=\sum\limits_{i=k-d+1}^{d-1} L(H_i).
+L(T^k_s)=\sum\limits_{i=k-d+1}^{d-1} L(T^i_s).
 \end{equation}  
 Eq. \eqref{eq:leafrec} exactly corresponds to the recursive definition of Fibonacci sequence of order $d-1$.
-As each of the two base cases $L(H_1)$ and $L(H_2)$ equal double the base cases of the Fibonacci sequence, the number of leaves in time step $k$ is calculated as
+As each of the two base cases $L(T^l_s$ and $L(T^2_s)$ equal double the base cases of the Fibonacci sequence, the number of leaves in time step $k$ is calculated as
 \begin{equation}
 \label{eq:fibleaf}
-L(H_k)=2 F^{d-1}_k.
+L(T^k_s)=2 F^{d-1}_k.
 \end{equation}  
-Since each node in $H_k$ had been a leaf in exactly one time step, the number of nodes in $H_k$ can be expressed as 
+Since each node in $H^k_s$ had been a leaf in exactly one time step, the number of nodes in $T^k_s$ can be expressed as 
 \begin{equation}
 \label{eq:fibcnt}
 |V_k|=2\sum\limits_{i=1}^k F^{d-1}_i.
@@ -210,7 +222,6 @@ For a $d$-regular graph on $n$ and $s$ source, the lower bound on delay is
 \qed
 \end{proof}
 
-
 An additional knowledge of a degree sequence of $G$ can be exploited. 
 Alg.~\ref{alg:dreg} calculates a lower bound on the delay when given number of nodes, sources and a degree sequence in $G$ as an input.
 The algorithm iteratively updates possible node degrees in $F_i$ in each time step $i$, and records the maximum potential number of nodes in $V_i$.
@@ -219,7 +230,6 @@ The number of iterations is then the lowest possible delay for given input.
 %The main idea is that in the most optimistic case, each node $v\in V_i$ with $\text{deg}_{F_i}(v)<\text{deg}_G(v)$ informs new not yet informed node.
 %For the purpose of finding lower bounds, we can assume without loss of generality that $\text{deg}_{F_i}(u)\leq\text{deg}_{F_i}(v) \Leftrightarrow \text{deg}_G(u)\geq \text{deg}_G(v)$.
 Once a node $v$ reaches its maximum degree, i.e., when $\text{deg}_{F_i}=\text{deg}_G(v)$ for some $i$, $v$ does not inform any other node in the next time steps.
-
 
 %For each $i=1,\dots d$, Alg. \ref{alg:dreg} keeps the  number of nodes with degree $i$.
 %These values are updated iteratively using dynamic programming until the number of informed nodes reaches $n$. 
@@ -301,6 +311,11 @@ The returned value is therefore a lower bound on the delay.
 Chu, X., Chen, Y.,
 Time division inter‐satellite link topology generation problem: Modeling and solution,
 International Journal of Satellite Communications and Networking, 194 -- 206, 36 (2017)
+
+\bibitem{grigni91}
+Grigni, M., Peleg, D.,
+Tight bounds on minimum broadcast networks
+Networks, 207-222, 4 (1991)
 
 \bibitem{jansen95}
 Jansen, K., M\"uller, H.,
