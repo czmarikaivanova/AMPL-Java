@@ -157,7 +157,7 @@ several variants of grid graphs,
 bipartite planar graphs with delay $k=2$ and maximum degree 3. 
 Yet another NP-completeness result for 3-regular planar graphs with delay 2 is shown in \cite{middendorf93}.
 The problem is known to be polynomial in trees \cite{slater81}.
-Whether the problem is polynomial or NP-complete for split graphs with a single source was stated as an open questions in \cite{jansen95}.
+Whether the problem is polynomial or NP-complete for split graphs with a single source was stated as an open questions in \cite{jansen95}, and hasn't been answered yet to our best knowledge.
 
 A number of inexact methods has been proposed in the literature.
 One of the first works of this category is \cite{scheuermann84}, 
@@ -165,11 +165,14 @@ where the authors introduce an exact dynamic programming algorithm based on gene
 Additional contribution of this paper are heuristic approaches for near optimal broadcasting.
 From more recent works we mention \cite{hasson04} which describes a meta heuristic ant algorithm for MBT and provides a comparison with other existing methods.
 The communication model is considered in an existing satellite navigation system in \cite{chu17}, where a greedy inexact methods is proposed together with a non-linear mathematical model.
+Examples of additional efficient heuristics can be found e.g. in \cite{harutyunyan06,harutyunyan14,wang10,jimborean13}.
 
 Approximation algorithms for MBT are studied in \cite{kortsarz95}. 
-The authors argue that methods presented in \cite{scheuermann84} provide no guarantee on the performance and state an $n$-node wheel as an example.
+The authors argue that methods presented in \cite{scheuermann84} provide no guarantee on the performance and state an $n$-node wheel as an example of an unfavourable instance.
 They introduce an $\mathcal{O}(\sqrt{n})$-additive approximation algorithm for broadcasting in general graphs.
 They further provide approximation algorithms for several graph classes with small separators with approximation ratio proportional to the separator size times $\log n$.
+Another algorithm with $\mathcal{O}\left(\frac{\log n}{\log \log n}\right)$-approximation ratio is given in~\cite{elkin03}.
+Most of the works above consider a single source.
 
 \section{Network Model and Notation}
 
@@ -337,6 +340,11 @@ Chu, X., Chen, Y.,
 Time division inter‐satellite link topology generation problem: Modeling and solution,
 International Journal of Satellite Communications and Networking, 194 -- 206, 36 (2017)
 
+\bibitem{elkin03}
+Elkin, M., Kortsarz, G.,
+Sublogarithmic approximation for telephone mlticast: path out of jungle,
+Symposium on Discrete Algorithms, 76 -- 85 (2003)
+
 \bibitem{farley81}
 Farley, A. M., Proskurowski, A.,
 Broadcasting in Trees with Multiple Originators,
@@ -351,6 +359,16 @@ Networks, 207-222, 4 (1991)
 Hasson, Y., Sipper, M.,
 A Novel Ant Algorithm for Solving the Minimum Broadcast Time Problem,
 International Conference on Parallel Problem Solving from Nature, 775 -- 780 (2004)
+
+\bibitem{harutyunyan06}
+Harutyunyan, H. A., Shao, B.,
+An efficient heuristic for broadcasting in networks,
+Journal of Parallel and Distributed Computing, 68 -- 76, 66, 1 (2006)
+
+\bibitem{harutyunyan14}
+Harutyunyan, H. A., Jimborean, C.,
+New Heuristic for Message Broadcasting in Network,
+IEEE 28th International Conference on Advanced Information Networking and Application, 517 -- 524, (2014)
 
 \bibitem{jansen95}
 Jansen, K., M\"uller, H.,
@@ -376,6 +394,19 @@ IEEE Transactions on Computers, 804 -- 811, 33, 9 (1984)
 Slater, P. J., Cockayne, E. J., Hedetniemi, S.T.,
 Information dissemination in Trees,
 SIAM Journal on Computing, 692 -- 701, 10, 4 (1981)
+
+\bibitem{wang10}
+Wang, W.,
+Heuristics for Message Broadcasting in Arbitrary Networks,
+Master thesis, Concordia University, Montr\'eal, Qu\'ebec, 
+Retrieved from http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.633.5827\&rep=rep1\&type=pdf (2010)
+
+\bibitem{jimborean13}
+Jimborean, C.,
+New Heuristics for Message Broadcasting in Arbitrary Networks,
+Master thesis, Concordia University, Montr\'eal, Qu\'ebec, 
+Retrieved from https://spectrum.library.concordia.ca/977717/1/Jimborean\_MCompSc\_F2013.pdf (2013)
+
 
 % Format for Journal Reference
 %Author, Article title, Journal, Volume, page numbers (year)
