@@ -5,9 +5,9 @@ Problem \ref{prob:min} can be formulated as an integer linear program and solved
 \subsection{Broadcast time model}
 The first studied model is a straightforward formulation of the problem.
 Consider variables 
-$$ x_{ij}^t=
+$$ x_{ij}^k=
 \begin{cases} 
-1, \text{ if } j\in V_t \text{ and } p(j)=i,\\ 
+1, \text{ if } j\in V_k \text{ and } \pi(j)=i,\\ 
 0, \text{ otherwise},
 \end{cases}
 $$
@@ -20,35 +20,35 @@ Problem \ref{prob:min} is then formulated as follows:
 \begin{align}
 \label{mod:basic:obj} \min c \\ 
 \label{mod:basic:onefromroot} \sum_{i \in N(s)}x^1_{si} & \leq 1 & s\in S,\\
-\label{mod:basic:singlein} \sum\limits_{t=1}^{n-1}\sum\limits_{j\in N(i)}x_{ji}^t & = 1 & i\in V \setminus S,\\
-\label{mod:basic:uniqueTout} \sum\limits_{j\in N(i)}x_{ij}^t & \leq 1  & t=1,\dots,n-1,i\in V,\\
-\label{mod:basic:tIncreases} \sum\limits_{j\in N(i)}x_{ij}^t &\leq\sum\limits_{u=1}^{t-1}\sum\limits_{k\in N(i)\setminus\{j\}} x_{ki}^u  & i\in V\setminus S, t=2,\dots,n-1,\\
-\label{mod:basic:tcrel} \sum\limits_{t=1}^{n-1}t\cdot x_{ij}^t & \leq c &  (i,j)\in A,\\
-%\label{mod:basic:tcrel} \sum\limits_{t=1}^{n-1}t\sum\limits_{j\in N(i)}x_{ij}^t & \leq c &  i\in V,\\
+\label{mod:basic:singlein} \sum\limits_{k=1}^{n-1}\sum\limits_{j\in N(i)}x_{ji}^k & = 1 & i\in V \setminus S,\\
+\label{mod:basic:uniqueTout} \sum\limits_{j\in N(i)}x_{ij}^k & \leq 1  & k=1,\dots,n-1,i\in V,\\
+\label{mod:basic:tIncreases} \sum\limits_{j\in N(i)}x_{ij}^k &\leq\sum\limits_{\ell=1}^{k-1}\sum\limits_{v\in N(i)\setminus\{j\}} x_{vi}^{\ell}  & i\in V\setminus S, k=2,\dots,n-1,\\
+\label{mod:basic:tcrel} \sum\limits_{k=1}^{n-1}k\cdot x_{ij}^k & \leq c &  (i,j)\in A,\\
+%\label{mod:basic:tcrel} \sum\limits_{t=1}^{n-1}t\sum\limits_{j\in N(i)}x_{ij}^k & \leq c &  i\in V,\\
 \label{mod:basic:positiveCost}x_{ij}^1 & = 0 & (i,j)\in A, i \not\in S,\\
 \label{mod:basic:dim}&&x \in \{0,1\}^{A\times V}, c \in\{1,\dots,n-1\}.
 \end{align}~
 \end{subequations}
 
-Constraints \eqref{mod:basic:onefromroot} indicate that for each source node $s$, there is at most one adjacent node $i\in V_1$ such that $p(i)=s$.
-By \eqref{mod:basic:singlein}, for every non-source node, there is exactly one node $j$ such that $p(i)=j$.
-Constraints \eqref{mod:basic:uniqueTout} enforce that for each node $i\in V$ and each subset $V_t$, there is at most one adjacent node $j\in V_t$ with $p(j)=i$.
-The requirement that a non-source node has $j\in V_t:p(j)=i$ only if there exists $k\in V_{t-1}: p(i)=k$ is modeled by \eqref{mod:basic:tIncreases}. 
+Constraints \eqref{mod:basic:onefromroot} indicate that for each source node $s$, there is at most one adjacent node $i\in V_1$ such that $\pi(i)=s$.
+By \eqref{mod:basic:singlein}, for every non-source node, there is exactly one node $j$ such that $\pi(i)=j$.
+Constraints \eqref{mod:basic:uniqueTout} enforce that for each node $i\in V$ and each subset $V_k$, there is at most one adjacent node $j\in V_k$ with $\pi(j)=i$.
+The requirement that a non-source node has a neighbor $j\in V_k:\pi(j)=i$ only if there exists $v\in V_{k-1}: \pi(i)=v$ is modeled by \eqref{mod:basic:tIncreases}. 
 %The requirement that only informed nodes can relay a signal is modeled by \eqref{mod:basic:tIncreases}. 
 %The maximum time step at which any transmission takes place is captured by \eqref{mod:basic:tcrel}, and finally, \eqref{mod:basic:positiveCost} states that a node that is not a source never transmits in the first time step.
-The length of the sequence of subsets is captured by \eqref{mod:basic:tcrel}, and finally, \eqref{mod:basic:positiveCost} state that if $p(j)\not\in S$ for some $j\in V$, then $j\not\in V_1$.
+The length of the sequence of subsets is captured by \eqref{mod:basic:tcrel}, and finally, \eqref{mod:basic:positiveCost} state that if $\pi(j)\not\in S$ for some $j\in V$, then $j\not\in V_1$.
 \subsection{Binomial tree model}
 
 The following method solves Problem \ref{prob:min} by solving a sequence of decision problems:
 \begin{problem}
 \label{prob:dec}
-Given $G=(V,E)$, $S\subseteq V$ and $k\in \mathbb{N}$, is there a sequence $S=V_0\subseteq\dots\subseteq V_k=V$ 
-and a mapping $p:V\setminus S\to V$, such that for each $v\in V\setminus S:\{v,p(v)\}\in E$ and for each  $u,v\in V_i\setminus V_{i-1}: p(u)\neq p(v)\Leftrightarrow u\neq v$?
+Given $G=(V,E)$, $S\subseteq V$ and $t\in \mathbb{N}$, is there a sequence $S=V_0\subseteq\dots\subseteq V_t=V$ 
+and a mapping $\pi:V\setminus S\to V$, such that for each $v\in V\setminus S:\{v,\pi(v)\}\in E$ and for each  $u,v\in V_i\setminus V_{i-1}: \pi(u)\neq \pi(v)\Leftrightarrow u\neq v$?
 \end{problem}
-For a delay $k$, at most $s\cdot 2^k$ nodes can be informed within $k$ steps. 
+For a delay $t$, at most $s\cdot 2^t$ nodes can be informed within $t$ steps. 
 %Therefore, we assume $n\leq 2^ks.
-This can be achieved when the broadcast forest $T$ consists of binomial trees $B^k$ of order $k$ rooted at sources $s\in S$.
-Hence, if there is a partition of $G$ into $s$ pruned binomial trees of order at most $k$ rooted at sources, then $(G,S,k)$ is a YES instance of Problem \ref{prob:dec}.
+This can be achieved when the broadcast forest $T$ consists of binomial trees $B^t$ of order $t$ rooted at sources $s\in S$.
+Hence, if there is a partition of $G$ into $s$ pruned binomial trees of order at most $t$ rooted at sources, then $(G,S,t)$ is a YES instance of Problem \ref{prob:dec}.
 %Finding a partition of $G$ into $s$ pruned binomial trees can be equivalently formulated as finding a partition of $G''$ into $s$ (complete) binomial trees, 
 %where $G''$ is constructed from $G$ as follows:
 %Let $\alpha\coloneqq s\cdot 2^k-|V|$, and let $K_\alpha=(V_\alpha,E_\alpha)$ be a complete graph on $\alpha$ nodes.
@@ -57,42 +57,42 @@ Hence, if there is a partition of $G$ into $s$ pruned binomial trees of order at
 %The set of arcs $A''$ is constructed by creating two arcs of opposite orientation for each edge, but arcs with orientation from $V_\alpha$ to $V$ are excluded. 
 %Formally, $A''=A\cup\{(u,v),(v,u): \{u,v\}\in E_\alpha\}\cup\{(u,v):u\in V \wedge v\in V_\alpha\}$.
 
-Let $I=\{1,\dots,2^k\}$.
-For a directed rooted binomial tree $B^k=(V^k,A^k)$, we define a systematic numbering of nodes in $V^k$, so that a node number determines a unique position in $B^k$.
-I.e., we need a bijective mapping $\beta: V^k \to I$.
+Let $I=\{1,\dots,2^t\}$.
+For a directed rooted binomial tree $B^t=(V^t,A^t)$, we define a systematic numbering of nodes in $V^t$, so that a node number determines a unique position in $B^t$.
+I.e., we need a bijective mapping $\beta: V^t \to I$.
 A suitable mapping $\beta$ assigns values increasingly with decreasing outgoing degree. 
 If there is an ambiguity, a node whose parent has a lower number is assigned a lower number.
 This mapping is defined recursively as
 \begin{equation}
 \label{eq:beta}
 \beta(v)=\begin{cases}
-1,\text{ if } v\in S \text{ is a root of } B^k,\\
-\beta(p(v)) + 2^{k-deg^+(v)-1}, \text{ otherwise}.
+1,\text{ if } v\in S \text{ is a root of } B^t,\\
+\beta(\pi(v)) + 2^{t-deg^+(v)-1}, \text{ otherwise}.
 \end{cases}
 \end{equation}
 \begin{observation}\label{obs:deg}
-For each $i\in\{1,\dots,k\}$, the set $\{v\in V^k: 1\leq\beta(v)\leq2^i\}\setminus\{v\in V^k:1\leq\beta(v)\leq2^{i-1}\}$ contains nodes with out-degree $k-i$.
+For each $i\in\{1,\dots,t\}$, the set $\{v\in V^t: 1\leq\beta(v)\leq2^i\}\setminus\{v\in V^t:1\leq\beta(v)\leq2^{i-1}\}$ contains nodes with out-degree $t-i$.
 \end{observation}
 \begin{observation}\label{obs:childdeg}
-Children of $v\in V^k$ with $deg^+(v)=\ell$ have out-degree $0,\dots,\ell-1$.
+Children of $v\in V^t$ with $\text{deg}^+(v)=\ell$ have out-degree $0,\dots,\ell-1$.
 \end{observation}
 \begin{proposition}\label{lem:probeq}
-An instance $(G,S,k)$ of Problem \ref{prob:dec} is a YES-instance iff 
-there exists a partition of $G$ into $s$ directed pruned binomial trees $B^k_1,\dots,B^k_{s}$ of order $k$ rooted at sources in $S$,
-such that for each $B^k_i=(V^k_i,A^k_i)$ we have that $A^k_i\cap\{(u,v):u \in V_\alpha \wedge v\in V^k_i\}=\emptyset$. 
+An instance $(G,S,t)$ of Problem \ref{prob:dec} is a YES-instance iff 
+there exists a partition of $G$ into $s$ directed pruned binomial trees $B^t_1,\dots,B^t_{s}$ of order $t$ rooted at sources in $S$.
+%such that for each $B^t_i=(V^t_i,A^t_i)$ we have that $A^t_i\cap\{(u,v):u \in V_\alpha \wedge v\in V^t_i\}=\emptyset$. 
 \end{proposition}
 \begin{proof}
-Assume there is a node partition of $G$ into directed rooted binomial trees $B^k_1,\dots B^k_{s}$. 
-Nodes in $V$ are divided into a sequence of subsets $S=V_0\subseteq\dots\subseteq V_k=V$ such that $V_i=\{v\in V:1\leq\beta(v)\leq 2^i\}$,
-and $p(v)$ is a parent of $v$ in a corresponding binomial tree.
-For $u,v\in V_i\setminus V_{i-1}$ we have from Observation \ref{obs:deg} that $deg^+(u)=deg^+(v)=k-i$.
-Furthermore, $p(u)\neq p(v)$ must hold, because due to \ref{obs:childdeg} no node has two children with the same out-degree.
-These observations can be applied because the mapping $p$ corresponds to arcs in binomial trees $B^k_1,\dots,B^k_{s}$. 
+Assume there is a node partition of $G$ into directed rooted binomial trees $B^t_1,\dots B^t_{s}$. 
+Nodes in $V$ are divided into a sequence of subsets $S=V_0\subseteq\dots\subseteq V_t=V$ such that $V_i=\{v\in V:1\leq\beta(v)\leq 2^i\}$,
+and $\pi(v)$ is a parent of $v$ in a corresponding binomial tree.
+For $u,v\in V_i\setminus V_{i-1}$ we have from Observation \ref{obs:deg} that $deg^+(u)=deg^+(v)=t-i$.
+Furthermore, $\pi(u)\neq \pi(v)$ must hold, because due to \ref{obs:childdeg} no node has two children with the same out-degree.
+These observations can be applied because the mapping $\pi$ corresponds to arcs in binomial trees $B^t_1,\dots,B^t_{s}$. 
 
-Conversely, suppose there is a sequence of subsets and a mapping $p$ in $G$ with the desired properties.
-For $1\leq i\leq k$, $|V_i|\geq2|V_{i-1}|$ must hold, because otherwise $\forall u,v\in V_i:p(u)\neq p(v)\Leftrightarrow u\neq v$ could not be satisfied.
-For some node $v\in V_i$, there is at most $k-i$ nodes $u$ such that $p(u)=v$.
-Pruned binomial trees covering $G$ can then be constructed simply by following the mapping $p$.
+Conversely, suppose there is a sequence of subsets and a mapping $\pi$ in $G$ with the desired properties.
+For $1\leq i\leq t$, $|V_i|\geq2|V_{i-1}|$ must hold, because otherwise $\forall u,v\in V_i:\pi(u)\neq \pi(v)\Leftrightarrow u\neq v$ could not be satisfied.
+For some node $v\in V_i$, there is at most $t-i$ nodes $u$ such that $\pi(u)=v$.
+Pruned binomial trees covering $G$ can then be constructed simply by following the mapping $\pi$.
 %The remaining arcs that complement binomial trees are distributed along $A''\setminus A$.
 \qed
 \end{proof}
@@ -108,7 +108,7 @@ y_{is}^v=\begin{cases}
 $$
 where $v\in V'$ and $i\in I $. 
 With the definition of $G'$ above, it is straightforward to specify constraints that enforce desired values for $y$-variables.
-Whenever $y_{is}^{v_0}=1$, it indicates that the binomial tree $B^k_s$ was pruned in node $i$.
+Whenever $y_{is}^{v_0}=1$, it indicates that the binomial tree $B^t_s$ was pruned at node $i$.
 %An obvious weakness of this approach is  that the number of nodes increases to $|V''|=\mathcal{O}(ns)$, and the dimension of variables is thus $\mathcal{O}(n^2s^2)$.
 %However, once a suitable partition is found, the arcs of binomial trees contained in $K_\alpha$ can be diversely shuffled while preserving the layour of binomial trees in $G$.
 %Instead of adding the entire complete graph $K_\alpha$, a single node $v_0$ with a loop $(v_0,v_0)$ is connected as an apex to the original $G$.
@@ -119,10 +119,15 @@ Whenever $y_{is}^{v_0}=1$, it indicates that the binomial tree $B^k_s$ was prune
 %and every $(u,v)\in A_\alpha$ becomes $(v_0,v_0)$.
 %So, $v_0$ acts as a universal node that can substitute several nodes in each binomial tree.
 
-Let us define the set $C(i)$ of $\beta$-values of children of node $v$ with $\beta(v)=i$ in $B^k$:
+Let us define the set $C^1(i)$ of $\beta$-values of children (direct descendants) of node $v$ with $\beta(v)=i$ in $B^t$:
 \begin{equation}
-C(i)=\{2^j+i:j=\lceil\log_2 i\rceil,\dots,k-1\}.
+C^1(i)=\{2^j+i:j=\lceil\log_2 i\rceil,\dots,t-1\}.
 \end{equation}
+This definition can be generalized to descendants of an arbitrary distance $k$ from $v$ in $B^t$:
+\begin{equation}
+C^{k+1}(i)=\{C^k(j):j\in C^1(i)\}.
+\end{equation}
+
 The values of the variables must fulfill constraints
 
 \begin{subequations}\label{mod:partition}
@@ -133,19 +138,19 @@ The values of the variables must fulfill constraints
 %\label{mod:part:noReturn} y^u_{ij}+y^v_{lj} &\leq 1 & i\in I,l\in C(i), j\in J, u\in V_\alpha,v\in V,\\
 %\label{mod:part:followArcs} y^u_{is}+y^v_{\ell s} &\leq 1 & i\in I,\ell\in C(i), s\in S, u,v\in V',(u,v)\not\in A',\\
 \label{mod:part:followArcsA} y^u_{is}+y^v_{\ell s} &\leq 1 & i\in I,\ell\in C(i), s\in S, u,v\in V,\{u,v\}\not\in E,\\
-\label{mod:part:followArcsB} y^{v_0}_{is}+y^v_{\ell s} &\leq 1 & i\in I,\ell\in C(i), s\in S, v\in V\\
+\label{mod:part:followArcsB} y^{v_0}_{is}+y^v_{\ell s} &\leq 1 & i\in I,\ell\in C(i), s\in S, v\in V,\\
 \label{mod:part:dim}&&y \in \{0,1\}^{I\times S\times V'}.
 \end{align}~
 \end{subequations}
 
-As the model solves the decision problem, it suffices to find any feasible solution, and no objective function is needed.
+As the model represents the decision problem, it suffices to find any feasible solution, and no objective function is needed.
 The interpretation of constraints \eqref{mod:part:nodeBelongs} is that every node in the original graph $G$ belongs to exactly one binomial tree.
 Note that these constraints are quantified only over $V$ and not over $V'$.
 In this way it is achieved that $v_0$ can be regarded as a part of several binomial trees.
 By \eqref{mod:part:treeHasIJ} is ensured that there is always exactly one $i$-th node of each binomial tree.
 By the summation over $V'$ is ensured, that pruned nodes are collectively represented by $v_0$.
 Next, \eqref{mod:part:source1} enforce that source nodes are always the first nodes in corresponding binomial trees, in accordance with definition \eqref{eq:beta} of the mapping $\beta$.
-The remaining two sets of constraints guarantee that the arcs of binomial trees follow edges in $E'$.
+The remaining two sets of constraints guarantee that the arcs of binomial trees follow edges in $E$.
 In particular, it is enforced by \eqref{mod:part:followArcsA} that if $u$ and $v$ are not adjacent in $G$, then $v$ must not act as a child of $u$ in any binomial tree.
 Finally, \eqref{mod:part:followArcsB} forbids any node from $V$ to be a child of $v_0$ in any binomial tree. 
 This reflects the obvious fact that if a tree is pruned at some node, all its descendants must also be excluded from the tree.
@@ -153,14 +158,61 @@ This reflects the obvious fact that if a tree is pruned at some node, all its de
 %In other words, once the signal leaves the original graph $G$ and enters $v_0$, it cannot return back to $G$.
 Without \eqref{mod:part:followArcsA} and \eqref{mod:part:followArcsB}, it could be possible to find a feasible solution, even when no partition of $G$ into pruned binomial trees exists.
 
-Constraints \eqref{mod:part:followArcsA} and \eqref{mod:part:followArcsB} can be strengthened by
-\begin{subequations}\label{mod:partition}
+Constraints \eqref{mod:part:followArcsA} and \eqref{mod:part:followArcsB} can be replaced by stronger
+\begin{subequations}
 \begin{align}
-\label{mod:part:followArcsAStronger}
+\label{mod:part:followArcsAStrongerA}
 y^{v_0}_{is}+y^u_{i s} + \sum\limits_{v\in V\setminus N(u)}y^v_{\ell s}&\leq 1 & u\in V,i\in I,\ell\in C(i), s\in S,  \\
+\label{mod:part:followArcsAStrongerB}
 y^{v_0}_{is}+y^u_{\ell s} + \sum\limits_{v\in V\setminus N(u)}y^v_{i s}&\leq 1 & u\in V,i\in I,\ell\in C(i), s\in S. 
 \end{align}
 \end{subequations}
 
+We now use the notion of graph power $G^k=(V,E^k)$ commonly defined as a graph with the same set of nodes as $G$,
+and an edge between two nodes in $G^k$ is present iff there is a path of length at most $k$ between them in $G$.
+For our purposes, we use a slightly modified definition of the edge set
+$$E^k=\{\{u,v\}:\text{there exists a path between $u$ and $v$ in $G$ of length $k$}\}.$$
+For a given $k$, let $W$ be a maximum independent set in $G^k$.
+Further strengthening can be achieved by introducing valid inequalities
+\begin{subequations}
+\begin{align}
+\label{mod:part:vi}
+y^{v_0}_{is}+ \sum\limits_{v\in W}(y^v_{is}+y^v_{\ell s})&\leq 1 & i\in I,\ell\in C^k(i), s\in S,k\in\{1,\dots,\Delta-1\}, 
+\end{align}
+\end{subequations}
+where $\Delta$ denotes the graph diameter of $G$.
+Consider indices $i$ and $\ell$ in a binomial tree.
+By expanding the summation on the left-hand side of \eqref{mod:part:vi}
+we obtain variables such that no two nodes in their superscript can be $i$-th and $\ell$-th node of a binomial tree at the same time.
+It is obvious for variables with the same superscript - one node cannot act as both $i$-th and $\ell$-th node of a binomial tree.
+That is already guaranteed by \eqref{mod:part:nodeBelongs}.
+The indices assume a certain distance $k$ between the nodes with the corresponding labels.
+The fact that $W$ is an independent set in the modified graph power ensures that no two nodes between which there is no path of the desired length have these indices.
 
+Another improvement of this model is achieved by a symmetry removal.
+If a broadcast tree is identical to a binomial tree, we notice that nodes with labels from $C(i)$, i.e., children of some node $v$ with $\beta(v)=i$ are informed in increasing time steps.
+For example in $B^3$, $C(2)=\{4,6\}$ and the corresponding nodes are informed in time step 2 and 3, respectively.
+If a label $\ell\in C(i)$ corresponds to a node of a binomial tree that is pruned (if $y^{v_0}_{\ell s}=1$ for some $s\in S$), 
+all labels $j\in C(i)$ such that $j>\ell$ can also be pruned. 
+Thus, adding 
+\begin{subequations}
+\begin{align}
+\label{mod:part:sr}
+y^{v_0}_{js}&\leq y^{v_0}_{\ell s}&i\in I,j,\ell\in C(i), s\in S
+\end{align}
+\end{subequations}
+to the model reduces the set of feasible solutions.
 
+An objective function is naturally lacking in the formulation of the decision problem.
+It is nevertheless straightforward to create an ILP model for the corresponding optimization problem.
+Let $z_i=1 \Leftrightarrow t=i$ be a new variable and let $\bar{t}$ be an upper bound on the delay in $(G,S)$.
+Problem \ref{prob:min} is formulated as follows:
+\begin{subequations}
+\begin{align}
+\notag &\min\sum\limits_{j=0}^{\bar{t}}z_j,\\
+\notag \text{s. t. } \\
+\notag \eqref{mod:part:nodeBelongs} - \eqref{mod:part:source1},& \eqref{mod:part:followArcsAStrongerA} - \eqref{mod:part:followArcsAStrongerB}, \eqref{mod:part:vi}, \eqref{mod:part:sr},\\
+\notag\sum\limits_{v\in V}y^v_{is} & \leq z_{\lceil\log i\rceil} & i\in I,s\in S,\\
+\notag\label{mod:part:optdim}y &\in \{0,1\}^{I\times S\times V'}, z \in \{0,1\}^{\bar{t}}.
+\end{align}~
+\end{subequations}

@@ -129,8 +129,8 @@ every node/.style={shape=circle,fill=gray!40,draw }}
 
 \section{Introduction}
 \label{intro}
-The minimum broadcast time consists of a set of communication nodes with a subset of source nodes. 
-The task is to disseminate a signal to every node in a shortest possible time while abiding by communication rules.
+The minimum broadcast time (MBT) problem consists of a set of communication nodes with a subset of source nodes. 
+The task is to disseminate a signal to every node in a shortest possible time $t$ (delay), while abiding by communication rules.
 An \emph{informed} node is a node that has received the signal.
 Otherwise, a node is \emph{uninformed}.
 At the beginning, the set of informed nodes is exactly the set of sources.
@@ -141,25 +141,24 @@ At each time step, every informed node can forward the signal to at most one uni
 The number of informed nodes at some time step can therefore be up to double the number of informed nodes at the previous time step.
 %\subsection{Motivation and Related Work}
 %This communication protocol differs from various wireless communication models where a signal can be relayed to all nodes within a visibility range of a sender.
-%An example of a practical application is a communication among processors.
+This communication protocol appears in various practical application such as communication among processors or telephone networks.
 %The applications are however not confined to wired networks.
-%Situations where the signals have to cover large distances typically assume sending the signal to one neighbor at a time.
-%This is common in satellite communication.
-%
+Situations where the signals have to cover large distances typically assume sending the signal to one neighbor at a time.
+This is common in satellite communication.
 
 \subsection{Literature overview}
 
 MBT has been shown to be NP-complete on arbitrary graphs in \cite{slater81}. 
 The problem remains NP-complete even for several restricted communication networks \cite{jansen95} such as
-split graphs with delay $k=2$, chordal graphs,
-biparite and planar graphs with maximum degree 3 and a single source,
+split graphs with delay $t=2$, chordal graphs,
+bipartite and planar graphs with maximum degree 3 and a single source,
 several variants of grid graphs,
-bipartite planar graphs with delay $k=2$ and maximum degree 3. 
+bipartite planar graphs with delay $t=2$ and maximum degree 3. 
 Yet another NP-completeness result for 3-regular planar graphs with delay 2 is shown in \cite{middendorf93}.
 The problem is known to be polynomial in trees \cite{slater81}.
 Whether the problem is polynomial or NP-complete for split graphs with a single source was stated as an open questions in \cite{jansen95}, and hasn't been answered yet to our best knowledge.
 
-A number of inexact methods has been proposed in the literature.
+A number of inexact methods for both general and special graph classes has been proposed in the literature during last decades.
 One of the first works of this category is \cite{scheuermann84}, 
 where the authors introduce an exact dynamic programming algorithm based on generating all maximum matchings in an induced bipartite graph.
 Additional contribution of this paper are heuristic approaches for near optimal broadcasting.
@@ -171,93 +170,97 @@ Approximation algorithms for MBT are studied in \cite{kortsarz95}.
 The authors argue that methods presented in \cite{scheuermann84} provide no guarantee on the performance and state an $n$-node wheel as an example of an unfavourable instance.
 They introduce an $\mathcal{O}(\sqrt{n})$-additive approximation algorithm for broadcasting in general graphs.
 They further provide approximation algorithms for several graph classes with small separators with approximation ratio proportional to the separator size times $\log n$.
-Another algorithm with $\mathcal{O}\left(\frac{\log n}{\log \log n}\right)$-approximation ratio is given in~\cite{elkin03}.
+Another algorithm with $\mathcal{O}\left(\frac{\log n}{\log \log n}\right)$-approximation\footnote{All logarithms in this paper are of base 2} ratio is given in~\cite{elkin03}.
 Most of the works above consider a single source.
 
 \section{Network Model and Notation}
 
-The communication network is represented by a connected undirected unweighted graph $G=(V,E)$ and a subset of nodes $S\subseteq V$, where $|V|=n$ and $|S|=s$. 
-Broadcasting is defined as a sequence of sets $S=V_0\subseteq\dots\subseteq V_k = V$ where each $V_i$ represents the nodes informed after time step $i$, $0\leq i\leq k$.
-For each node $v\in V_i\setminus V_{i-1}$, there exists a single node $p(v)\in V_{i-1}$ adjacent to $v$, which forwarded the signal to $v$.
-Also, for every two distinct nodes $u,v\in V_i\setminus V_{i-1}$ we have $p(u)\neq p(v)$.
-The value $k$ is referred to as \emph{delay}.
+The communication network is represented by a connected undirected unweighted graph $G=(V,E)$ and a subset of nodes $S\subseteq V$, where $|V|=n$ and $|S|=m$. 
+Broadcasting is defined as a sequence of sets $S=V_0\subseteq\dots\subseteq V_t = V$ where each $V_i$ represents the nodes informed after time step $i$, $0\leq i\leq t$.
+For each node $v\in V_i\setminus V_{i-1}$, there exists a single node $\pi(v)\in V_{i-1}$ adjacent to $v$, which forwarded the signal to $v$.
+Also, for every two distinct nodes $u,v\in V_i\setminus V_{i-1}$ we have $\pi(u)\neq \pi(v)$.
+%The value $k$ is referred to as \emph{delay}.
 The optimization problem in question is defined as follows \cite{jansen95,middendorf93}:
 \begin{problem}\label{prob:min}
-Given $G=(V,E)$ and $S\subseteq V$, find a sequence $S=V_0\subseteq\dots\subseteq V_k=V$ of minimum length $k$ 
-and a mapping $p:V\setminus S\to V$, such that for each $v\in V\setminus S:\{v,p(v)\}\in E$, and for each $u,v\in V_i\setminus V_{i-1}: p(u)\neq p(v)\Leftrightarrow u\neq v$.
+Given $G=(V,E)$ and $S\subseteq V$, find a sequence $S=V_0\subseteq\dots\subseteq V_t=V$ of minimum length $t$ 
+and a mapping $\pi:V\setminus S\to V$, such that for each $v\in V\setminus S:\{v,\pi(v)\}\in E$, and for each $u,v\in V_i\setminus V_{i-1}: \pi(u)\neq \pi(v)\Leftrightarrow u\neq v$.
 \end{problem}
 We also define the set $A=\{(i,j),(j,i):\{i,j\}\in E\}$ that consists of all arcs that can be derived by directing edges in $E$.
 A degree, in-degree and out-degree of node $v$ in $G$ are denoted by $\text{deg}_G(v)$, $\text{deg}^-_G(v)$ and $\text{deg}^+_G(v)$, respectively.
 Whenever there is no danger of confusion, the subscript $G$ is omitted.
-The set of neighbors of $v\in V$ in $G$ is denoted by $N(v)$.
+The set of neighbors of $v\in V$ in $G$ is denoted by $N(v)$ and $N^+(v)$ in directed graphs.
 
 For convenience, we consider the following definition of broadcast trees \cite{grigni91}:
 For $s\in S$, a broadcast tree $T_s$ with node set $V_{T_s}$ is a time-labeled directed subgraph of $G$ describing a broadcast originated by $s$ by the following rules:
 \begin{enumerate}
 \item $T_s$ is rooted at $s$ with arcs directed towards the leaves.
-\item Each node $v$ is labeled with an integer $t(v)$, where $t(s)=0$.
-\item Whenever $v$ is a parent of $u$ in $T_s$ $t(v)<t(u)$.
-\item Whenever $v$ and $u$ are siblings in $T_s$, $t(v)\neq t(u)$. 
+\item Each node $v$ is labeled with an integer $\tau(v)$, where $\tau(s)=0$.
+\item Whenever $v$ is a parent of $u$ in $T_s$ $\tau(v)<\tau(u)$.
+\item Whenever $v$ and $u$ are siblings in $T_s$, $\tau(v)\neq \tau(u)$. 
 \end{enumerate}
-A set of trees $T=\{T_s:\cup_{s\in S}V_{T_s}=V\}$ forms a partition of $G$ into trees referred to as \emph{broadcast forest} (or \emph{broadcast protocol}?).
-$T$ can be derived from a given sequence of sets of nodes defining broadcasting and the mapping $p$.
-Given a broadcast forest $T$, the delay is determined as $k=\max_{v\in V}\{t(v)\}$.
-Further, let $T^i_s$ be a subtree of $T_s$ obtained by pruning all nodes $v\in V_{T_s}$ with $t(v)>i$.
+The number of leaves in $T_s$ is denoted by $L(T_s)$.
+A set of trees $T=\{T_s:\cup_{s\in S}V_{T_s}=V\}$ forms a partition of $G$ into trees referred to as \emph{broadcast forest}.
+$T$ can be derived from a given sequence of sets of nodes defining broadcasting and the mapping $\pi$.
+Given a broadcast forest $T$, the delay is determined as $t=\max_{v\in V}\{\tau(v)\}$.
+Further, let $T^i_s$ be a subtree of $T_s$ obtained by pruning all nodes $v\in V_{T_s}$ with $\tau(v)>i$.
 Analogously, we define $T^i=\{T^i_s:s\in S\}$. 
 
 \input{models.tex}
 
 \section{Lower bounds}
-In this section, we study lower bounds on delay $k$ for several restrictions of input graphs.
-An optimal solution is obtained by solving a sequence of decision problems with varying $k$. 
+In this section, we study lower bounds on delay for several restrictions of input graphs.
+An optimal solution is obtained by solving a sequence of decision problems with varying $t$. 
 It is therefore desirable to determine tight lower and upper bounds in order to arrive in the optimum after solving as few decision problems as possible.
 Obvious bounds for a general graph instance are given by
 \begin{observation}
 For an instance (G,S) of Problem \ref{prob:min},
-$$\left\lceil\log\frac{n}{s}\right\rceil\leq k \leq n-s.$$
+$$\left\lceil\log\frac{n}{m}\right\rceil\leq t \leq n-m.$$
 \end{observation}
 
 Consider a $d$-regular graph with one source $s$.
 The broadcast forest $T$ consists of a single tree $T_s$.
-We investigate the number of leaves in $T_s$ and derive a lower bound on the dealy for this graph class.
-For $k=1,2$, $L(T^1_s)=L(T^2_s)=2$.
-For $k\geq 3$, $L(T^k_s)$ corresponds to the number of nodes with degree $1,\dots,d-1$ in $T^{k-1}_s$.
-It can also be interpreted as the sum of number of leaves in $T^{k-d+1}_s,\dots,T^{k-1}_s$, which leads to the following formula
-\begin{equation}
+We investigate the number of leaves in $T_s$ and derive a lower bound on the delay for this graph class.
+Clearly, $L(T^1_s)=L(T^2_s)=2$.
+For $i\geq 3$, $L(T^i_s)$ corresponds to the number of nodes with degree $1,\dots,d-1$ in $T^{i-1}_s$, because these nodes can theoretically inform new uninformed nodes.
+It can also be interpreted as the sum of number of leaves in $T^{i-d+1}_s,\dots,T^{i-1}_s$, which leads to %the following formula
+\begin{equation*}
 \label{eq:leafrec}
-L(T^k_s)=\sum\limits_{i=k-d+1}^{d-1} L(T^i_s).
-\end{equation}  
-Eq. \eqref{eq:leafrec} exactly corresponds to the recursive definition of Fibonacci sequence of order $d-1$.
-As each of the two base cases $L(T^l_s$ and $L(T^2_s)$ equal double the base cases of the Fibonacci sequence, the number of leaves in time step $k$ is calculated as
-\begin{equation}
+L(T^i_s)=\sum\limits_{j=i-d+1}^{i-1} L(T^j_s).
+\end{equation*}  
+This formula exactly corresponds to the recursive definition of Fibonacci sequence of order $d-1$.
+As each of the two base cases $L(T^1_s)$ and $L(T^2_s)$ equal double the base cases of the Fibonacci sequence, the number of leaves in time step $i$ is calculated as
+\begin{equation*}
 \label{eq:fibleaf}
-L(T^k_s)=2 F^{d-1}_k.
-\end{equation}  
-Since each node in $H^k_s$ had been a leaf in exactly one time step, the number of nodes in $T^k_s$ can be expressed as 
+L(T^i_s)=2 F^{d-1}_i.
+\end{equation*}  
+Since each node in $T^i_s$ had been a leaf in exactly one time step, the number of nodes in $T^i_s$ can be expressed as 
 \begin{equation}
 \label{eq:fibcnt}
-|V_k|=2\sum\limits_{i=1}^k F^{d-1}_i.
+|V_i|=2\sum\limits_{j=1}^i F^{d-1}_j.
 \end{equation}
 
 \begin{proposition}
-For a $d$-regular graph on $n$ and $s$ source, the lower bound on delay is 
-\begin{equation}
+For a $d$-regular graph on $n$ nodes and $s$ sources, the lower bound on the delay is 
+\begin{equation*}
 \label{lem:lbreg1}
-\left\lceil\min\{k:2\sum\limits_{i=1}^k F^{d-1}_i\geq n\}/s\right\rceil.
-\end{equation}
+\underline{t}=\left\lceil\min\{k:2\sum\limits_{j=1}^k F^{d-1}_j\geq n\}/s\right\rceil.
+\end{equation*}
 \end{proposition}
 \begin{proof}
-\qed
+It follows from the discussion above that the maximum number of nodes informed within $i$ time steps is given by \eqref{eq:fibcnt}.
+We therefore need to add Fibonacci numbers sufficiently many times so that the resulting sum exceeds $n$.
+The reason why the result has to be divided by $s$ is easy to see e.g. on a $2$-regular graph (cycle).
+ \qed
 \end{proof}
 
 An additional knowledge of a degree sequence of $G$ can be exploited. 
 Alg.~\ref{alg:dreg} calculates a lower bound on the delay when given number of nodes, sources and a degree sequence in $G$ as an input.
-The algorithm iteratively updates possible node degrees in $F_i$ in each time step $i$, and records the maximum potential number of nodes in $V_i$.
-For the purpose of finding lower bounds, it is assumed that each node $v\in V_i$ with $\text{deg}_{F_i}(v)<\text{deg}_G(v)$ informs a new uninformed node.
+The algorithm iteratively updates possible node degrees in $T^i$ in each time step $i$, and records the maximum potential number of nodes in $V_i$.
+For the purpose of finding lower bounds, it is assumed that each node $v\in V_i$ with $\text{deg}_{T^i}(v)<\text{deg}_G(v)$ informs a new uninformed node.
 The number of iterations is then the lowest possible delay for given input.
 %The main idea is that in the most optimistic case, each node $v\in V_i$ with $\text{deg}_{F_i}(v)<\text{deg}_G(v)$ informs new not yet informed node.
 %For the purpose of finding lower bounds, we can assume without loss of generality that $\text{deg}_{F_i}(u)\leq\text{deg}_{F_i}(v) \Leftrightarrow \text{deg}_G(u)\geq \text{deg}_G(v)$.
-Once a node $v$ reaches its maximum degree, i.e., when $\text{deg}_{F_i}=\text{deg}_G(v)$ for some $i$, $v$ does not inform any other node in the next time steps.
+Once a node $v$ reaches its maximum degree, i.e., when $\text{deg}_{T^i}=\text{deg}_G(v)$ for some $i$, $v$ does not inform any other node in the next time steps.
 
 %For each $i=1,\dots d$, Alg. \ref{alg:dreg} keeps the  number of nodes with degree $i$.
 %These values are updated iteratively using dynamic programming until the number of informed nodes reaches $n$. 
@@ -268,7 +271,7 @@ $a_1,\dots,a_{2s}\leftarrow 1$\;%\tcp{this is a comment}
 \For{$i=2s+1,\dots,n$} {
 $a_i\leftarrow 0$\;
 }
-$c\leftarrow 2s$;\tcp{every source informes a new node}
+$c\leftarrow 2s$;\tcp{every source informs a new node}
 $k\leftarrow 1$\;
 \While {$c<n$} {
 $k\leftarrow k+1$\;
@@ -292,31 +295,68 @@ $c\leftarrow c + c_n$\;
 
 
 The input is assumed to be correct in the sense that a graph with given degree sequence exists, and by definition, the degree sequence is ordered non-increasingly.
-For each iteration $k$, Alg.~\ref{alg:dreg} stores degrees of nodes in $F_k$ in variables $a_1,\dots,a_n$.
-Note that the forest $F_k$ is not actually constructed. 
-The algorithm operates merely with potential degrees of nodes in $F_k$.
+For each iteration $k$, Alg.~\ref{alg:dreg} stores degrees of nodes in $T^k$ in variables $a_1,\dots,a_n$.
+Note that the forest $T^k$ is not actually constructed. 
+The algorithm operates merely with potential degrees of nodes in $T^k$.
 Next, variable $c$ keeps the value $|V_k|$, i.e., the number nodes informed within $k$ steps.
 Finally, $c_n$ stores $|V_k\setminus V_{k-1}|$, thus the number of nodes newly informed in time step $k$.
 
 
 \begin{proposition}
-If $G$ is an arbitrary graph with $n$ nodes, $s$ sources and node degrees $d_i$, $1\leq i\leq n$, Alg.~\ref{alg:dreg} calculates a lower bound for the delay $k$ from Problem~\ref{prob:min} in $G$.
+If $G$ is an arbitrary graph with $n$ nodes, $s$ sources and node degrees $d_i$, $1\leq i\leq n$, Alg.~\ref{alg:dreg} calculates a lower bound for the delay $t$ from Problem~\ref{prob:min} in $G$.
 \end{proposition}
 \begin{proof}
 (Idea:)
-The most optimistic scenario is when $F_k$ consists of full binomial trees.
-In such a case, for $u\in V_i$ and $v\in V_j$ we have $\text{deg}_{F_k}(v)\leq\text{deg}_{F_k}(u)\Leftrightarrow i\leq j$.
+The most optimistic scenario is when $T^k$ consists of full binomial trees.
+In such a case, for $u\in V_i$ and $v\in V_j$ we have $\text{deg}_{T^k}(v)\leq\text{deg}_{T^k}(u)\Leftrightarrow i\leq j$.
 We can therefore assert that in an optimal solution, $\text{deg}_G(u)\leq\text{deg}_G(v)\Leftrightarrow i\leq j$.
-Whenever $\text{deg}_{F_k}(v)<\text{deg}_G(v)$, $v$ informs a new node in $V\setminus V_k$ with maximum degree in $G$, which is ensured by the decreasing order of input node degrees.
-For every $v\in V$, $\text{deg}_{F_k}(v)\leq \text{deg}_G(v)$ always holds.
+Whenever $\text{deg}_{T^k}(v)<\text{deg}_G(v)$, $v$ informs a new node in $V\setminus V_k$ with maximum degree in $G$, which is ensured by the decreasing order of input node degrees.
+For every $v\in V$, $\text{deg}_{T^k}(v)\leq \text{deg}_G(v)$ always holds.
 Further, when the condition $c<n$ is tested on line 7, $c$ contains the correct value of number of nodes in $V_k$.
 The returned value is therefore a lower bound on the delay.
 \qed
 \end{proof}
 
+\section{Upper bounds}
 
+We present a simple general method for determining an upper bound on the optimal solution.
+The idea is to construct broadcast trees in parallel from their roots in sources.
+A new node is connected to a tree is it was not connected to any other tree in any of the previous iterations.
+The steps are summarized in Alg. \ref{alg:genub}.
 
+\begin{algorithm}[]
+\KwData{$G=(V,E), S\subseteq V$}
+$U\leftarrow S$;\tcp{Set of marked nodes}
+$T_s=(V_s,A_s), V_s\leftarrow \{s\}, E_s\leftarrow\emptyset$\;
+\While{$|U|<n$} {
+	\For{$s\in S$} {
+		Select $v\in V\setminus U:\exists u\in V_s \text{ s. t.} \{u,v\}\in E$ according to some strategy\; 	
+		$U\leftarrow U\cup\{v\}$\;
+		$V_s\leftarrow V_s\cup\{v\}$\;
+		$A_s\leftarrow A_s\cup\{u,v\}$\;
+	}
+}
+\For{$s\in S$} {
+$	
+\sigma(v)=\begin{cases}
+		0, \text{ if } v\in L(T_s),\\
+		\max\limits_{k\in 1,\dots,|N^+(v)|}\{k+\sigma(j_k):j_k\in N^+(v)\wedge \forall \ell<k:\sigma(j_\ell)>\sigma(j_k)\},\\
+		\hfill \text{ if }v\in V_s\setminus L(T_s).
 
+\end{cases}\;
+$
+}
+\Return $\max_{s\in S}\sigma(s)$\;
+%\Return $\lceil k/s \rceil$\;
+ \caption{A method for determining an upper bound}
+\label{alg:genub}
+\end{algorithm}
+The algorithm consists of two phases. 
+In the first phase (lines 3 -- 10), $m$ broadcast trees are constructed.
+The second phase (lines 11 -- 13) uses a recursive formula that determines in linear time an optimal broadcast time for a subtree of $T_s$ rooted at $v\in V_s$.
+The value  $\sigma(s)$ than gives the optimal broadcast time for $T_s$.
+The complexity of Alg. \ref{alg:genub} depends on the strategy according to which the trees are constructed.
+For common strategies such as BFS and DFS it is $\mathcal{O}(n+|E|)$, for the shortest paths trees $\mathcal{O}(|E| + n\log n)$.
 
 %\begin{acknowledgements}
 %If you'd like to thank anyone, place your comments here
@@ -342,7 +382,7 @@ International Journal of Satellite Communications and Networking, 194 -- 206, 36
 
 \bibitem{elkin03}
 Elkin, M., Kortsarz, G.,
-Sublogarithmic approximation for telephone mlticast: path out of jungle,
+Sublogarithmic approximation for telephone multicast: path out of jungle,
 Symposium on Discrete Algorithms, 76 -- 85 (2003)
 
 \bibitem{farley81}
