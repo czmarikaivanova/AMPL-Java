@@ -34,16 +34,21 @@ public class Runner {
 
 			// Solve decision problem
 			System.out.println("Reading partition model...");
-			ampl.read("models/partition-opt.mod");
+			ampl.read("models/partition-apex.mod");
 			ampl.readData(amplFileName);
-//			Parameter k = ampl.getParameter("k");
-//			System.out.println("Setting parameter k of the decision problem to the objective value: " + objval);
-//			k.set(objval);
+			Parameter k = ampl.getParameter("k");
+			System.out.println("Setting parameter k of the decision problem to the objective value: " + objval);
+			k.set(objval);
+			ampl.solve();
+			
+			objval = objval - 1;
+			System.out.println("Setting parameter k of the decision problem to something less than obj: " + objval);
+			k.set(objval - 1);
 			ampl.solve();
 	
-			obj = ampl.getObjective("time");
-			objval = obj.value();
-			System.out.println("partition objective: " + objval);
+//			obj = ampl.getObjective("time");
+//			objval = obj.value();
+//			System.out.println("partition objective: " + objval);
 			
 			Variable x = ampl.getVariable("x");
 			// Obtain data of variable x and display them

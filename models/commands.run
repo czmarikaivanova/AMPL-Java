@@ -1,0 +1,5 @@
+reset;
+model partition-apex.mod;
+data ../data/ampl99.dat;
+option solver '/home/marika/ampl/cplex';
+solve;

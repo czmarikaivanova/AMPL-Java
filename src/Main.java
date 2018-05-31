@@ -4,7 +4,7 @@ public class Main {
 
 	public static void main(String[] args) throws IOException {
 		Runner r = null;
-		System.out.println("iter: " + args[0]);
+		//System.out.println("iter: " + args[0]);
 		if (args.length == 1) { // ampl data file as an input
 			r = new Runner(args[0]);
 			r.run();

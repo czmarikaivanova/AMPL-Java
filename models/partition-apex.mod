@@ -32,4 +32,6 @@ subject to sourceOnes {v in S}: x[1,v,v] = 1;
 
 #subject to noReturnFromK {j in S, i in I, l in P[i], u in V_K, v in V_G}: x[i,j,u] + x[2^l+i,j,v] <= 1;
 
-subject to followArcs {u in V, v in V, i in I, j in S, l in P[i]: (u,v) not in A and u != v}: x[i,j,u] + x[2^l+i,j,v] <=1;
+#subject to followArcs {u in V, v in V, i in I, j in S, l in P[i]: (u,v) not in A and u != v}: x[i,j,u] + x[2^l+i,j,v] <=1;
+subject to followArcsA {i in I, l in P[i],j in S, v in V, u in V: (u,v) not in E and u != v}: x[i,s,u] + x[2^l+1,s,v] <= 1;
+subject to followArcsB {i in I, l in P[i],j in S, v in V}: x[i,s,0] + x[2^l+1,s,v] <= 1;
