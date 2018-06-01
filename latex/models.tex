@@ -5,41 +5,62 @@ Problem \ref{prob:min} can be formulated as an integer linear program and solved
 \subsection{Broadcast time model}
 The first studied model is a straightforward formulation of the problem.
 Consider variables 
-$$ x_{ij}^k=
+$$ x_{uv}^k=
 \begin{cases} 
-1, \text{ if } j\in V_k \text{ and } \pi(j)=i,\\ 
+1, \text{ if } v\in V_k \text{ and } \pi(v)=u,\\ 
 0, \text{ otherwise},
 \end{cases}
 $$
-and a variable $c$ representing the number of necessary time steps.
+and a variable $t$ representing the number of necessary time steps.
 The worst case scenario is when $G$ is a path $v_1,\dots,v_n$ with $S=\{v_1\}$. 
-In such an instance, the necessary number of time steps is $n-1$, which gives a trivial upper bound on $c$.
+In such an instance, the necessary number of time steps is $n-1$, which gives a trivial upper bound $\bar{t}=n-s$ on the value of $t$.
 Problem \ref{prob:min} is then formulated as follows: 
-
 \begin{subequations}\label{mod:basic}
 \begin{align}
-\label{mod:basic:obj} \min c \\ 
-\label{mod:basic:onefromroot} \sum_{i \in N(s)}x^1_{si} & \leq 1 & s\in S,\\
-\label{mod:basic:singlein} \sum\limits_{k=1}^{n-1}\sum\limits_{j\in N(i)}x_{ji}^k & = 1 & i\in V \setminus S,\\
-\label{mod:basic:uniqueTout} \sum\limits_{j\in N(i)}x_{ij}^k & \leq 1  & k=1,\dots,n-1,i\in V,\\
-\label{mod:basic:tIncreases} \sum\limits_{j\in N(i)}x_{ij}^k &\leq\sum\limits_{\ell=1}^{k-1}\sum\limits_{v\in N(i)\setminus\{j\}} x_{vi}^{\ell}  & i\in V\setminus S, k=2,\dots,n-1,\\
-\label{mod:basic:tcrel} \sum\limits_{k=1}^{n-1}k\cdot x_{ij}^k & \leq c &  (i,j)\in A,\\
+\label{mod:basic:obj} \min t \\ 
+\label{mod:basic:onefromroot} \sum_{u \in N(s)}x^1_{su} & \leq 1 & s\in S,\\
+\label{mod:basic:singlein} \sum\limits_{k=1}^{\bar{t}}\sum\limits_{v\in N(u)}x_{vu}^k & = 1 & u\in V \setminus S,\\
+\label{mod:basic:uniqueTout} \sum\limits_{v\in N(u)}x_{uv}^k & \leq 1  & k=1,\dots,\bar{t},u\in V,\\
+\label{mod:basic:tIncreases} \sum\limits_{v\in N(u)}x_{uv}^k &\leq\sum\limits_{\ell=1}^{k-1}\sum\limits_{w\in N(u)\setminus\{v\}} x_{wu}^{\ell}  & u\in V\setminus S, k=2,\dots,\bar{t},\\
+\label{mod:basic:tcrel} \sum\limits_{k=1}^{\bar{t}}k\cdot x_{uv}^k & \leq c &  (u,v)\in A,\\
 %\label{mod:basic:tcrel} \sum\limits_{t=1}^{n-1}t\sum\limits_{j\in N(i)}x_{ij}^k & \leq c &  i\in V,\\
-\label{mod:basic:positiveCost}x_{ij}^1 & = 0 & (i,j)\in A, i \not\in S,\\
-\label{mod:basic:dim}&&x \in \{0,1\}^{A\times V}, c \in\{1,\dots,n-1\}.
+\label{mod:basic:positiveCost}x_{uv}^1 & = 0 & (u,v)\in A, u \not\in S,\\
+\label{mod:basic:dim}&&x \in \{0,1\}^{A\times V},t\in\{1,\dots,\bar{t}\}.
 \end{align}~
 \end{subequations}
-
-Constraints \eqref{mod:basic:onefromroot} indicate that for each source node $s$, there is at most one adjacent node $i\in V_1$ such that $\pi(i)=s$.
-By \eqref{mod:basic:singlein}, for every non-source node, there is exactly one node $j$ such that $\pi(i)=j$.
-Constraints \eqref{mod:basic:uniqueTout} enforce that for each node $i\in V$ and each subset $V_k$, there is at most one adjacent node $j\in V_k$ with $\pi(j)=i$.
-The requirement that a non-source node has a neighbor $j\in V_k:\pi(j)=i$ only if there exists $v\in V_{k-1}: \pi(i)=v$ is modeled by \eqref{mod:basic:tIncreases}. 
+Constraints \eqref{mod:basic:onefromroot} indicate that for each source node $s$, there is at most one adjacent node $u\in V_1$ such that $\pi(u)=s$.
+By \eqref{mod:basic:singlein}, for every non-source node, there is exactly one node $v$ such that $\pi(u)=v$.
+Constraints \eqref{mod:basic:uniqueTout} enforce that for each node $u\in V$ and each subset $V_k$, there is at most one adjacent node $v\in V_k$ with $\pi(v)=u$.
+The requirement that a non-source node has a neighbor $v\in V_k:\pi(v)=u$ only if there exists $w\in V_{k-1}: \pi(u)=w$ is modeled by \eqref{mod:basic:tIncreases}. 
 %The requirement that only informed nodes can relay a signal is modeled by \eqref{mod:basic:tIncreases}. 
 %The maximum time step at which any transmission takes place is captured by \eqref{mod:basic:tcrel}, and finally, \eqref{mod:basic:positiveCost} states that a node that is not a source never transmits in the first time step.
-The length of the sequence of subsets is captured by \eqref{mod:basic:tcrel}, and finally, \eqref{mod:basic:positiveCost} state that if $\pi(j)\not\in S$ for some $j\in V$, then $j\not\in V_1$.
+The length of the sequence of subsets is captured by \eqref{mod:basic:tcrel}, and finally, \eqref{mod:basic:positiveCost} state that if $\pi(v)\not\in S$ for some $j\in V$, then $v\not\in V_1$.
 \subsection{Binomial tree model}
 
-The following method solves Problem \ref{prob:min} by solving a sequence of decision problems:
+We now develop a method for Problem \ref{prob:min} by solving a sequence of decision problems:
+\begin{figure}
+\centering
+\begin{tikzpicture}[->,scale=.7,every node/.style = {scale=.6,draw,shape=circle, align=center, fill=gray!30}, level/.style={sibling distance=2.5cm/#1,level distance=1.0cm}]]
+   \node[] {1}
+   	   child[] { node {2} 
+	   	   child {node {4}
+		  	child {node {8}} 
+		   }
+		   child {node {6} }
+	   }
+   child[] { node {3}
+   	   child { node {7} }
+	   }
+   child[] { node {5}
+	}
+ ;
+\end{tikzpicture}
+\caption{An arborescence with marked $\sigma$ values of the nodes}
+\label{fig:sigma}
+\end{figure}
+
+
+
 \begin{problem}
 \label{prob:dec}
 Given $G=(V,E)$, $S\subseteq V$ and $t\in \mathbb{N}$, is there a sequence $S=V_0\subseteq\dots\subseteq V_t=V$ 
