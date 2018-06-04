@@ -37,7 +37,21 @@ The requirement that a non-source node has a neighbor $v\in V_k:\pi(v)=u$ only i
 The length of the sequence of subsets is captured by \eqref{mod:basic:tcrel}, and finally, \eqref{mod:basic:positiveCost} state that if $\pi(v)\not\in S$ for some $j\in V$, then $v\not\in V_1$.
 \subsection{Binomial tree model}
 
-We now develop a method for Problem \ref{prob:min} by solving a sequence of decision problems:
+The binomial tree $B_k$ of order $k$ is an ordered tree defined recursively as follow \cite{cormen90}:
+\begin{itemize}
+\item The binomial tree $B_0$ consists of a single node.
+\item The binomial tree $B_k$ has a root with $k$ children where the $i$-th child is binomial tree of order $k-i$.
+\end{itemize}
+An example of $B_3$ is depicted in Fig.\ref{fig:beta}.
+%If a solution to MBT consists of broadcast trees that are binomial, the number of informed nodes doubles in each time step.
+For a given time step $k$, the maximum number of informed nodes within $k$ steps is $m2^k$.
+This occurs when the solution of MBT consists of broadcast trees that are binomial.
+%Any broadcast tree can be regarded as pruned binomial tree.  
+%Problem \ref{prob:min} can therefore be restated as finding a partition of $G$ into $m$ pruned binomial trees 
+\begin{observation}
+\label{obs:btspread}
+if $r\in S$ is the root of $B_k$, then $\tau(B_k,\{r\})=k$.
+\end{observation}
 \begin{figure}
 \centering
 \begin{tikzpicture}[->,scale=.7,every node/.style = {scale=.6,draw,shape=circle, align=center, fill=gray!30}, level/.style={sibling distance=2.5cm/#1,level distance=1.0cm}]]
@@ -56,20 +70,58 @@ We now develop a method for Problem \ref{prob:min} by solving a sequence of deci
  ;
 \end{tikzpicture}
 \caption{An arborescence with marked $\sigma$ values of the nodes}
-\label{fig:sigma}
+\label{fig:beta}
 \end{figure}
 
+\subsubsection{Binomial trees over positive integers}
+
+Let $k\in \mathbb{N}$ and $I=\{1,\dots,2^k\}$. A directed binomial tree $B_k=(V_{B_k},A_{B_k})$ with arcs directed towards the leaves has a regular structure that allows to define a systematic numbering of nodes so that a node number determines unambiguously a position in $B_k$.
+That is, we need an applicable bijective function $\beta:V_{B_k}\to I$.
+A suitable bijection $\beta$ assigns values from $I$ to nodes increasingly with decreasing outgoing degree.
+If there is an ambiguity, a node whose parent has a lower number is assigned a lower number.
+This function is defined recursively as
+\begin{equation}
+\label{eq:beta}
+\beta(v)=\begin{cases}
+1,\text{ if } v \text{ is the root of } B^k,\\
+\beta(u) + 2^{k-deg^+(v)-1}, (u,v)\in A_{B_k},\text{ otherwise}.
+\end{cases}
+\end{equation}
+Nodes in Fig. \ref{fig:beta} are labeled with their $\beta$-values.
+
+Pairs of integers that are assigned to adjacent nodes in a binomial tree are defined by relation
+\begin{equation}
+\label{eq:betarel}
+R=\{(i,j)\in\mathbb{N}\times\mathbb{N}:j=i+2^k,k\geq\log i,k\in \mathbb{Z}\}
+\end{equation}
+
+We further define the function $\pi:\mathbb{N}\to\mathbb{Z}_+$ that for a given integer $i$ associated with node $v$
+determines $\beta$-value of parent of $v$: 
+\begin{align}
+\label{eq:piprime}
+\pi'(1)&=0, \\
+\pi'(j)&=j-2^{\lceil\log j\rceil -1}, j > 1.
+\end{align}
+Using functions $\alpha$, $\beta$, $\pi$ and the relation $R$, we introduce the notion of binomial trees over positive integers.
+\begin{definition}
+A pair $(I,X)$ where $I=\{1,\dots,2^k\}$, $k\in\mathbb{Z}_+$, $(\alpha(u),\beta(u))=(\alpha(v),\beta(v))\Leftrightarrow u=v$ and
+$X=\{(i,j)\in R, i,j\in I\}$ is an \emph{integer binomial tree of order $k$}. 
+
+$(I,X)$, where $I\subseteq\{1,\dots,2^k\}, k\in \mathbb{Z}_+,\pi(j)\in I$ for all $j\in I\setminus\{1\}$ and
+$X=\{(i,j)\in R, i,j\in I\}$ is an \emph{integer binomial tree of order $k$ pruned at $\{1,\dots,2^k\}\setminus I$}.
+\end{definition}
+We now develop a method for Problem \ref{prob:min} whose main principle is finding a partition of $G$ into pruned binomial trees.% by solving a sequence of decision problems:
 
 
-\begin{problem}
-\label{prob:dec}
-Given $G=(V,E)$, $S\subseteq V$ and $t\in \mathbb{N}$, is there a sequence $S=V_0\subseteq\dots\subseteq V_t=V$ 
-and a mapping $\pi:V\setminus S\to V$, such that for each $v\in V\setminus S:\{v,\pi(v)\}\in E$ and for each  $u,v\in V_i\setminus V_{i-1}: \pi(u)\neq \pi(v)\Leftrightarrow u\neq v$?
-\end{problem}
-For a delay $t$, at most $s\cdot 2^t$ nodes can be informed within $t$ steps. 
+%\begin{problem}
+%\label{prob:dec}
+%Given $G=(V,E)$, $S\subseteq V$ and $t\in \mathbb{N}$, is there a sequence $S=V_0\subseteq\dots\subseteq V_t=V$ 
+%and a mapping $\pi:V\setminus S\to V$, such that for each $v\in V\setminus S:\{v,\pi(v)\}\in E$ and for each  $u,v\in V_i\setminus V_{i-1}: \pi(u)\neq \pi(v)\Leftrightarrow u\neq v$?
+%\end{problem}
+%For a delay $t$, at most $s\cdot 2^t$ nodes can be informed within $t$ steps. 
 %Therefore, we assume $n\leq 2^ks.
-This can be achieved when the broadcast forest $T$ consists of binomial trees $B^t$ of order $t$ rooted at sources $s\in S$.
-Hence, if there is a partition of $G$ into $s$ pruned binomial trees of order at most $t$ rooted at sources, then $(G,S,t)$ is a YES instance of Problem \ref{prob:dec}.
+%This can be achieved when the broadcast forest $T$ consists of binomial trees $B^t$ of order $t$ rooted at sources $s\in S$.
+%Hence, if there is a partition of $G$ into $s$ pruned binomial trees of order at most $t$ rooted at sources, then $(G,S,t)$ is a YES instance of Problem \ref{prob:dec}.
 %Finding a partition of $G$ into $s$ pruned binomial trees can be equivalently formulated as finding a partition of $G''$ into $s$ (complete) binomial trees, 
 %where $G''$ is constructed from $G$ as follows:
 %Let $\alpha\coloneqq s\cdot 2^k-|V|$, and let $K_\alpha=(V_\alpha,E_\alpha)$ be a complete graph on $\alpha$ nodes.
@@ -78,19 +130,6 @@ Hence, if there is a partition of $G$ into $s$ pruned binomial trees of order at
 %The set of arcs $A''$ is constructed by creating two arcs of opposite orientation for each edge, but arcs with orientation from $V_\alpha$ to $V$ are excluded. 
 %Formally, $A''=A\cup\{(u,v),(v,u): \{u,v\}\in E_\alpha\}\cup\{(u,v):u\in V \wedge v\in V_\alpha\}$.
 
-Let $I=\{1,\dots,2^t\}$.
-For a directed rooted binomial tree $B^t=(V^t,A^t)$, we define a systematic numbering of nodes in $V^t$, so that a node number determines a unique position in $B^t$.
-I.e., we need a bijective mapping $\beta: V^t \to I$.
-A suitable mapping $\beta$ assigns values increasingly with decreasing outgoing degree. 
-If there is an ambiguity, a node whose parent has a lower number is assigned a lower number.
-This mapping is defined recursively as
-\begin{equation}
-\label{eq:beta}
-\beta(v)=\begin{cases}
-1,\text{ if } v\in S \text{ is a root of } B^t,\\
-\beta(\pi(v)) + 2^{t-deg^+(v)-1}, \text{ otherwise}.
-\end{cases}
-\end{equation}
 \begin{observation}\label{obs:deg}
 For each $i\in\{1,\dots,t\}$, the set $\{v\in V^t: 1\leq\beta(v)\leq2^i\}\setminus\{v\in V^t:1\leq\beta(v)\leq2^{i-1}\}$ contains nodes with out-degree $t-i$.
 \end{observation}
@@ -98,19 +137,28 @@ For each $i\in\{1,\dots,t\}$, the set $\{v\in V^t: 1\leq\beta(v)\leq2^i\}\setmin
 Children of $v\in V^t$ with $\text{deg}^+(v)=\ell$ have out-degree $0,\dots,\ell-1$.
 \end{observation}
 \begin{proposition}\label{lem:probeq}
-An instance $(G,S,t)$ of Problem \ref{prob:dec} is a YES-instance iff 
-there exists a partition of $G$ into $s$ directed pruned binomial trees $B^t_1,\dots,B^t_{s}$ of order $t$ rooted at sources in $S$.
-%such that for each $B^t_i=(V^t_i,A^t_i)$ we have that $A^t_i\cap\{(u,v):u \in V_\alpha \wedge v\in V^t_i\}=\emptyset$. 
+A graph $G=(V,E)$ and $S\subseteq V$ has $\tau(G,S)=k$ iff it is possible to assign integers to nodes
+such that they form (pruned) integer binomial trees $B_i, 1\leq i\leq m$ of order at most $k$.
 \end{proposition}
 \begin{proof}
-Assume there is a node partition of $G$ into directed rooted binomial trees $B^t_1,\dots B^t_{s}$. 
-Nodes in $V$ are divided into a sequence of subsets $S=V_0\subseteq\dots\subseteq V_t=V$ such that $V_i=\{v\in V:1\leq\beta(v)\leq 2^i\}$,
-and $\pi(v)$ is a parent of $v$ in a corresponding binomial tree.
-For $u,v\in V_i\setminus V_{i-1}$ we have from Observation \ref{obs:deg} that $deg^+(u)=deg^+(v)=t-i$.
-Furthermore, $\pi(u)\neq \pi(v)$ must hold, because due to \ref{obs:childdeg} no node has two children with the same out-degree.
-These observations can be applied because the mapping $\pi$ corresponds to arcs in binomial trees $B^t_1,\dots,B^t_{s}$. 
+For every integer binomial tree $B^k$ of 
+Assume nodes in $V$ can be labeled by integers from $I=\{1,\dots,2^k\}$ so that they form (pruned) integer integer binomial trees $B_i$ of order at most $k$.
+For $r\in V_{B_i}$ with $\alpha(r)=r$ and $\beta(r)=1$, by Observation \ref{obs:btspread}, $\tau(B_i,\{r\})\leq k$.
+The sequence of node sets $V_0,\dots,V_k$ is constructed by setting $V_0=\{v\in V:\beta(v)=1\}$, and $V_{i}=V_{i-1}\cup\{v\in V: 2^{i-1}+1\leq\beta(v)\leq 2^i$.
+Moreover, $\pi(v)=u\Leftrightarrow \alpha(v)=\alpha(u)~\&~\pi'(\beta(v))=\beta(u)$.
+Also, $\pi(u)=\pi(v)\Leftrightarrow u=v$ holds, because nodes in $V_i$ have $\beta$ values in $\{2^{i-1}+1,\dots,2^i\}$.
+We now observe that $\lceil\log (2^{i-1}+1)\rceil=\dots =\lceil\log 2^i\rceil$, and thus $\pi'(2^{i-1}+1),\dots,\pi'(2^i)$ are pairwise different. 
 
 Conversely, suppose there is a sequence of subsets and a mapping $\pi$ in $G$ with the desired properties.
+Nodes are associated with integeres from $I=\{1,\dots,2^k\}$ assigned according to the following steps:
+\begin{enumerate}
+\item $\beta(s)=1$ for all $s\in V_0$,
+\item For $i=1,\dots,k$ 
+\item[] order nodes in $u\in V_i$ decreasingly according to $|\{v:\pi(v)=u\}|$
+\item[] take $u\in V_i$ according to their ordering in the previous step and assign $\beta(u)=\min\{j\in I: (\beta(\pi(u),j)\in R, j \text{ has not been assigned in any previous interation}\}$
+
+\end{enumerate}
+
 For $1\leq i\leq t$, $|V_i|\geq2|V_{i-1}|$ must hold, because otherwise $\forall u,v\in V_i:\pi(u)\neq \pi(v)\Leftrightarrow u\neq v$ could not be satisfied.
 For some node $v\in V_i$, there is at most $t-i$ nodes $u$ such that $\pi(u)=v$.
 Pruned binomial trees covering $G$ can then be constructed simply by following the mapping $\pi$.
@@ -130,7 +178,7 @@ $$
 where $v\in V'$ and $i\in I $. 
 With the definition of $G'$ above, it is straightforward to specify constraints that enforce desired values for $y$-variables.
 Whenever $y_{is}^{v_0}=1$, it indicates that the binomial tree $B^t_s$ was pruned at node $i$.
-%An obvious weakness of this approach is  that the number of nodes increases to $|V''|=\mathcal{O}(ns)$, and the dimension of variables is thus $\mathcal{O}(n^2s^2)$.
+dd%An obvious weakness of this approach is  that the number of nodes increases to $|V''|=\mathcal{O}(ns)$, and the dimension of variables is thus $\mathcal{O}(n^2s^2)$.
 %However, once a suitable partition is found, the arcs of binomial trees contained in $K_\alpha$ can be diversely shuffled while preserving the layour of binomial trees in $G$.
 %Instead of adding the entire complete graph $K_\alpha$, a single node $v_0$ with a loop $(v_0,v_0)$ is connected as an apex to the original $G$.
 %Let us denote this multigraph as $G'=(V',E')$, where $V'=V\cup\{v_0\}$, $E'=E\cup\{\{u,v_0\}:u\in V\}\cup\{\{v_0\}\}$. 
