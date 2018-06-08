@@ -1,4 +1,4 @@
-% This is a general template file for the LaTeX package SVJour3
+% This is a general template file for the LaTeX package SVJour3mm
 % for Springer journals.          Springer Heidelberg 2010/09/16
 %
 % Copy it to a new file with a new name and use it as the basis
@@ -278,7 +278,7 @@ As each of the two base cases, $L(T^1_s)$ and $L(T^2_s)$, equals the double of t
 \label{eq:fibleaf}
 L(T^i_s)=2 F^{(d-1)}_i.
 \end{equation*}  
-The number of nodes in $T^i_s$ can be expressed as the sum of nodes newly informed in time steps $1,\dots i$, that is, the sum of leaves in $T^1_s,\dots T^i_s$. Thus,
+The number of nodes in $T^i_s$ can be expressed as the sum of nodes newly informed in time steps $1,\dots,i$, that is, the sum of leaves in $T^1_s,\dots,T^i_s$. Thus,
 \begin{equation}
 \label{eq:fibcnt}
 |V_{T^i_s}|=|V_i|=2\sum\limits_{j=1}^i F^{(d-1)}_j.
@@ -300,22 +300,55 @@ The reason why the result is divided by $|S|$ is that the best case scenario wit
 \end{proof}
 
 An additional knowledge of a degree sequence of $G$ can be exploited. 
+\begin{lemma}
+\label{lemma:degorder}
+Let $(d_1,\dots,d_n)$ be a degree sequence and $t\leq \bar{t}-|S|$ a given delay.
+The maximum number of nodes informed within $t$ time steps is achieved if nodes become informad in the order of their decreasing degree.
+\end{lemma}
+\begin{proof}
+A node with degree $d_i$ informed in $i$-th time step can inform at most $\min\{d_i-1,t-1\}$ nodes.
+Consider $l,k$ such that $1\leq k < \ell\leq n$ and nodes $v_k$, $v_\ell$ with $\deg(v_k)=d_k$ and $\deg(v_\ell)=d_\ell$.
+Then, $d_k-1>d_\ell-1$ and $t-k > t-\ell$.
+If nodes are informed in the order of their decreasing degree, let $K_1$ and $L_1$ be the number of nodes that can be informed by $v_k$ and $v_l$, respectively:
+$$
+K_1=\min\{d_k-1,t-k\}, ~~~ L_1=\min\{d_\ell-1,t-\ell\}.
+$$
+If the order in which $v_k$ and $v_l$ are informed is swithced, i.e. when $v_k$ and $v_\ell$ is informed in the $\ell$-th and $k$-th time step, respectively, 
+we use $K_2$ and $L_2$ to denote the maximum number of nodes informed by $v_k$ and $v_\ell$:
+$$
+K_2=\min\{d_k-1,t-\ell\} ~~~ L_2=\min\{d_\ell-1,t-k\}.
+$$
+We now investigate what possible values can the expression 
+\begin{equation}
+\label{eq:degbounds}
+(K_1+L_1)-(K_2+L_2)
+\end{equation}
+attain.
+Observe that $K_1\geq L_2$ and $K_2\geq L_1$. 
+If $K_2>L_1$, then $K_2=K_1=d_k-1$.
+But in that case, $L_2=L_1=d_\ell-1$. 
+We conclude that \eqref{eq:degbounds} always takes a non-negative value.
+Therefore, if the nodes are informed in the order of their decreasing degrees,
+the number of informed nodes within the give time step is no worse than when the nodes are informed in any other order.
+\qed
+\end{proof}
+
 Alg.~\ref{alg:dreg} calculates a lower bound on the delay when given number of nodes, sources and a degree sequence in $G$ as an input.
-The algorithm iteratively updates possible node degrees in $T^i$ in each time step $i$, and records the maximum potential number of nodes in $V_i$.
-For the purpose of finding lower bounds, it is assumed that each node $v\in V_i$ with $\text{deg}_{T^i}(v)<\text{deg}_G(v)$ informs a new uninformed node.
+The algorithm iteratively updates possible node degrees in $T^k$ in each time step $k$, and records the maximum possible number of nodes in $V_k$.
+For the purpose of finding lower bounds, it is assumed that each node $v\in V_k$ with $\deg_{T^k}(v)<\deg_G(v)$ informs a new uninformed node.
 The number of iterations is then the lowest possible delay for given input.
 %The main idea is that in the most optimistic case, each node $v\in V_i$ with $\text{deg}_{F_i}(v)<\text{deg}_G(v)$ informs new not yet informed node.
 %For the purpose of finding lower bounds, we can assume without loss of generality that $\text{deg}_{F_i}(u)\leq\text{deg}_{F_i}(v) \Leftrightarrow \text{deg}_G(u)\geq \text{deg}_G(v)$.
-Once a node $v$ reaches its maximum degree, i.e., when $\text{deg}_{T^i}=\text{deg}_G(v)$ for some $i$, $v$ does not inform any other node in the next time steps.
+Once a node $v$ reaches its maximum degree, i.e., when $\text{deg}_{T^k}=\deg_G(v)$ for some $k$, $v$ does not inform any other node in the next time steps.
 
 %For each $i=1,\dots d$, Alg. \ref{alg:dreg} keeps the  number of nodes with degree $i$.
 %These values are updated iteratively using dynamic programming until the number of informed nodes reaches $n$. 
 
 \begin{algorithm}
-\KwData{$n,s,d_1,\dots,d_n\in \mathbb{N}, s\leq n,\newline 1\leq d_n\leq\dots\leq d_2\leq d_1$}
-$a_1\leftarrow\dots\leftarrow a_{s}\leftarrow 1$\;%\tcp{this is a comment}
-$a_{s+1}\leftarrow\dots\leftarrow a_{n}\leftarrow 0$\;%\tcp{this is a comment}
-$c\leftarrow s$;%\tcp{every source informs a new node}
+\KwData{$n,m,d_1,\dots,d_n\in \mathbb{N}, m\leq n,\newline 1\leq d_n\leq\dots\leq d_2\leq d_1$}
+$a_1\leftarrow\dots\leftarrow a_{m}\leftarrow 1$\;%\tcp{this is a comment}
+$a_{m+1}\leftarrow\dots\leftarrow a_{n}\leftarrow 0$\;%\tcp{this is a comment}
+$c\leftarrow m$;%\tcp{every source informs a new node}
 $~k\leftarrow 0$\;
 \While {$c<n$} {
 $k\leftarrow k+1$\;
@@ -344,23 +377,19 @@ The algorithm operates merely with potential degrees of nodes in $T^k$.
 Next, variable $c$ keeps the value $|V_k|$, i.e., the number nodes informed within $k$ steps.
 Finally, $c_n$ stores $|V_k\setminus V_{k-1}|$, thus the number of nodes newly informed in time step $k$.
 
-
 \begin{proposition}
-If $G$ is an arbitrary graph with $n$ nodes, $s$ sources and node degrees $d_i$, $1\leq i\leq n$, Alg.~\ref{alg:dreg} calculates a lower bound on the delay in $G$.
+If $G$ is an arbitrary graph with $n$ nodes, $m$ sources and node degrees $d_i$, $1\leq i\leq n$, Alg.~\ref{alg:dreg} calculates a lower bound on the delay in $G$.
 \end{proposition}
 \begin{proof}
-(Idea:)
-The most optimistic scenario is when $T^k$ consists of full binomial trees.
-In such a case, for $u\in V_i$ and $v\in V_j$ we have $\text{deg}_{T^k}(v)\leq\text{deg}_{T^k}(u)\Leftrightarrow i\leq j$.
-We can therefore assert that in an optimal solution, $\text{deg}_G(u)\leq\text{deg}_G(v)\Leftrightarrow i\leq j$.
-Whenever $\text{deg}_{T^k}(v)<\text{deg}_G(v)$, $v$ informs a new node in $V\setminus V_k$ with maximum degree in $G$, which is ensured by the decreasing order of input node degrees.
-For every $v\in V$, $\text{deg}_{T^k}(v)\leq \text{deg}_G(v)$ always holds.
-Further, when the condition $c<n$ is tested on line 7, $c$ contains the correct value of number of nodes in $V_k$.
-The returned value is therefore a lower bound on the delay.
+The assumption that nodes with higher degree in $G$ are informed first in the optimal solution is justified by Lemma \ref{lemma:degorder}.
+In each iteration $k$, Alg. \ref{alg:dreg} degrees in $T^k$ of maximum possible number of nodes are increased in the order of their decreasing degree.
+The current maximum possible number of informed nodes is stored in the variable $c$, and is updated at the end of the outre loop.
+So, when the condition $c<n$ is tested on line 7, $c$ contains the correct value of number of nodes in $V_k$.
+As soon as it is possible that at least $n$ nodes are informed, the algorithm returns the number of necessary iterations.
 \qed
 \end{proof}
 
-%\input{upper.tex}
+\input{upper.tex}
 
 %\begin{acknowledgements}
 %If you'd like to thank anyone, place your comments here
