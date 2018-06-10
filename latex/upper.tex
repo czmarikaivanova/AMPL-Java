@@ -1,42 +1,74 @@
 \section{Upper bounds}
 
-We present a simple general method for determining an upper bound on the optimal solution.
-The idea is to construct broadcast trees in parallel from their roots in sources.
-A new node is connected to a tree is it was not connected to any other tree in any of the previous iterations.
-The steps are summarized in Alg. \ref{alg:genub}.
+The algorithms presented in this section iteratively construct broadcast foerst $T_i, i=1,2,\dots$.
+The following inexact method is based on the idea of finding maximum cardinality matching in $G\left[V_{T_i},V\setminus V_{T_i}\right]$.
+That means that in each iteration, maximum possible number of nodes are informed.
+Maximum cardinality matching can be regarded as finding $|V_{T_i}|$ node-disjoint  binomial trees of order at most one with roots in $V_{T_i}$, maximizing the number of edges.
+By generalizing this notion, we iteratively look for $|V_{T_i}|$ node-disjoint (pruned) binomial trees of an arbitrary given order $k$ valued between 1 and $n-|S|$.
+Even though this problem is NP-hard for $k\geq 2$ \cite{jansen95}, it is expected that the computational time is sound in most practical instances.
+After obtaining the set of binomial trees, first $p$ nodes in each tree is selected and added to the broadcast forest.
+The parameter $p\in \{1,\dots,2^k\}$ is thus a part of the input.
+
+Alg. \ref{alg:match} describes the process more formally.
+Initially, the broadcast forest consists of isolated sources.
 
 \begin{algorithm}[]
-\KwData{$G=(V,E), S\subseteq V$}
-$U\leftarrow S$;\tcp{Set of marked nodes}
+\KwData{$G=(V,E), S\subseteq V, k\in \{1,\dots,n-|S|\}, p\in \{1,\dots,2^k\}$}
+%$U\leftarrow S$;\tcp{Set of marked nodes}
 $T_s=(V_s,A_s), V_s\leftarrow \{s\}, E_s\leftarrow\emptyset$\;
-\While{$|U|<n$} {
-	\For{$s\in S$} {
-		Select $v\in V\setminus U:\exists u\in V_s \text{ s. t.} \{u,v\}\in E$ according to some strategy\; 	
-		$U\leftarrow U\cup\{v\}$\;
-		$V_s\leftarrow V_s\cup\{v\}$\;
-		$A_s\leftarrow A_s\cup\{u,v\}$\;
-	}
+$t\leftarrow 0$\;
+\While{$|V_T|<n$} {
+	Find a set of pruned binomial trees $B=\{B_1,\dots,B_{|V_T|}\}$ of order at most $k$ with roots in $V_T$ maximizing $|V_B|$, such that $V_{B_i}\neq V_{B_j}$ whenever $i\neq j$\;
+	$V_T\leftarrow V_T\cup \{v:v\in V_B:\beta(v)\leq p\}$\;
+	$E_T\leftarrow E_T\cup \{\{u,v\}\in E_B: \beta(u)\leq p,\beta(v)\leq p\}$\;
+	$t\leftarrow t+1$\;
 }
-\For{$s\in S$} {
-$	
-\sigma(v)=\begin{cases}
-		0, \text{ if } v\in L(T_s),\\
-		\max\limits_{k\in 1,\dots,|N^+(v)|}\{k+\sigma(j_k):j_k\in N^+(v)\wedge \forall \ell<k:\sigma(j_\ell)>\sigma(j_k)\},\\
-		\hfill \text{ if }v\in V_s\setminus L(T_s).
-
-\end{cases}\;
-$
-}
-\Return $\max_{s\in S}\sigma(s)$\;
+\Return t\;
 %\Return $\lceil k/s \rceil$\;
  \caption{A method for determining an upper bound}
 \label{alg:genub}
 \end{algorithm}
-The algorithm consists of two phases. 
-In the first phase (lines 3 -- 10), $m$ broadcast trees are constructed.
-The second phase (lines 11 -- 13) uses a recursive formula that determines in linear time an optimal broadcast time for a subtree of $T_s$ rooted at $v\in V_s$.
-The value  $\sigma(s)$ than gives the optimal broadcast time for $T_s$.
-The complexity of Alg. \ref{alg:genub} depends on the strategy according to which the trees are constructed.
-For common strategies such as BFS and DFS it is $\mathcal{O}(n+|E|)$, for the shortest paths trees $\mathcal{O}(|E| + n\log n)$.
 
 
+
+%
+%We present a simple general method for determining an upper bound on the optimal solution.
+%The idea is to construct broadcast trees in parallel from their roots in sources.
+%A new node is connected to a tree is it was not connected to any other tree in any of the previous iterations.
+%The steps are summarized in Alg. \ref{alg:genub}.
+%
+%\begin{algorithm}[]
+%\KwData{$G=(V,E), S\subseteq V$}
+%$U\leftarrow S$;\tcp{Set of marked nodes}
+%$T_s=(V_s,A_s), V_s\leftarrow \{s\}, E_s\leftarrow\emptyset$\;
+%\While{$|U|<n$} {
+%	\For{$s\in S$} {
+%		Select $v\in V\setminus U:\exists u\in V_s \text{ s. t.} \{u,v\}\in E$ according to some strategy\; 	
+%		$U\leftarrow U\cup\{v\}$\;
+%		$V_s\leftarrow V_s\cup\{v\}$\;
+%		$A_s\leftarrow A_s\cup\{u,v\}$\;
+%	}
+%}
+%\For{$s\in S$} {
+%$	
+%\sigma(v)=\begin{cases}
+%		0, \text{ if } v\in L(T_s),\\
+%		\max\limits_{k\in 1,\dots,|N^+(v)|}\{k+\sigma(j_k):j_k\in N^+(v)\wedge \forall \ell<k:\sigma(j_\ell)>\sigma(j_k)\},\\
+%		\hfill \text{ if }v\in V_s\setminus L(T_s).
+%
+%\end{cases}\;
+%$
+%}
+%\Return $\max_{s\in S}\sigma(s)$\;
+%%\Return $\lceil k/s \rceil$\;
+% \caption{A method for determining an upper bound}
+%\label{alg:genub}
+%\end{algorithm}
+%The algorithm consists of two phases. 
+%In the first phase (lines 3 -- 10), $m$ broadcast trees are constructed.
+%The second phase (lines 11 -- 13) uses a recursive formula that determines in linear time an optimal broadcast time for a subtree of $T_s$ rooted at $v\in V_s$.
+%The value  $\sigma(s)$ than gives the optimal broadcast time for $T_s$.
+%The complexity of Alg. \ref{alg:genub} depends on the strategy according to which the trees are constructed.
+%For common strategies such as BFS and DFS it is $\mathcal{O}(n+|E|)$, for the shortest paths trees $\mathcal{O}(|E| + n\log n)$.
+%
+%

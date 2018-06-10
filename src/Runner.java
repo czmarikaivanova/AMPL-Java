@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.IOException;
 import com.ampl.AMPL;
 import com.ampl.DataFrame;
@@ -16,6 +17,9 @@ public class Runner {
 	public void run() {
 		AMPL ampl = new AMPL();
 		try {
+			fibonacciLB(200, 1, 7);
+			System.exit(0);
+			
 			// read ampl data file
 			// set solver to cplex
 			ampl.setOption("solver", "cplex");
@@ -69,4 +73,28 @@ public class Runner {
 			ampl.close();
 		}
 	}
+	
+	private double solveAMPLModel(File modfile, File dataFile, double lb, double ub) {
+		return 0;
+	}
+	
+	private double fibonacciLB(int n, int s, int d) {
+		int[] fib = new int[n];
+		fib[0] = 0;
+		fib[1] = 1;
+		int k = 1;
+		while (2 * fib[k] < n) {
+			k++;
+			for (int i= 1; i <= d; i++) {
+				fib[k] += (k - i  >= 0 ? fib[k-i] : 0);
+			}
+		}
+		for (int dd: fib) {
+			System.out.println(dd + " ");
+		}
+		return Math.ceil(k / s);
+	}
+	
+	
+	
 }
