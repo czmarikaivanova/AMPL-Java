@@ -11,6 +11,10 @@ $$ x_{uv}^k=
 1, \text{ if } v\in V_k \text{ and } \pi(v)=u,\\ 
 0, \text{ otherwise},
 \end{cases}
+z_{k}=\begin{cases}
+1, \text{ if } k\leq\tau(G,S),\\
+0, \text{ otherwise},
+\end{cases}
 $$
 and a variable $t^*$ representing the number of necessary time steps.
 The worst case scenario is when $G$ is a path $v_1,\dots,v_n$ with $S=\{v_1\}$. 
@@ -18,11 +22,12 @@ In such an instance, the necessary number of time steps is $n-1$, which gives a 
 Problem \ref{prob:min} is then formulated as follows: 
 \begin{subequations}\label{mod:basic}
 \begin{align}
-\label{mod:basic:obj} \min t^* \\ 
+\label{mod:basic:obj} \min \sum\limits_{k=1}^{\bar{t}}z_k \\ 
 %\label{mod:basic:onefromroot} \sum_{u \in N(s)}x^1_{su} & \leq 1 & s\in S,\\
 \label{mod:basic:singlein} \sum\limits_{k=1}^{\bar{t}}\sum\limits_{v\in N(u)}x_{vu}^k & = 1 & u\in V \setminus S,\\
 \label{mod:basic:uniqueTout} \sum\limits_{v\in N(u)}x_{uv}^k & \leq 1  & k=1,\dots,\bar{t},u\in V,\\
-\label{mod:basic:tIncreases} \sum\limits_{v\in N(u)}x_{uv}^k &\leq\sum\limits_{\ell=1}^{k-1}\sum\limits_{w\in N(u)\setminus\{v\}} x_{wu}^{\ell}  & u\in V\setminus S, k=2,\dots,\bar{t},\\
+%\label{mod:basic:tIncreases} \sum\limits_{v\in N(u)}x_{uv}^k &\leq\sum\limits_{\ell=1}^{k-1}\sum\limits_{w\in N(u)\setminus\{v\}} x_{wu}^{\ell}  & u\in V\setminus S, k=2,\dots,\bar{t},\\
+\label{mod:basic:tIncreases} x_{uv}^k &\leq\sum\limits_{\ell=1}^{k-1}\sum\limits_{w\in N(u)\setminus\{v\}} x_{wu}^{\ell}  & \{u,v\}\in V\setminus S, k=2,\dots,\bar{t},\\
 \label{mod:basic:tcrel} \sum\limits_{k=1}^{\bar{t}}k\cdot x_{uv}^k & \leq t^* &  (u,v)\in A,\\
 %\label{mod:basic:tcrel} \sum\limits_{t=1}^{n-1}t\sum\limits_{j\in N(i)}x_{ij}^k & \leq c &  i\in V,\\
 \label{mod:basic:positiveCost}x_{uv}^1 & = 0 & (u,v)\in A, u \in V\setminus S,\\

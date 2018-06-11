@@ -1,34 +1,22 @@
 \section{Upper bounds}
 
-The algorithms presented in this section iteratively construct broadcast foerst $T_i, i=1,2,\dots$.
-The following inexact method is based on the idea of finding maximum cardinality matching in $G\left[V_{T_i},V\setminus V_{T_i}\right]$.
-That means that in each iteration, maximum possible number of nodes are informed.
+%The algorithms presented in this section iteratively construct broadcast foerst $T_i, i=1,2,\dots$.
+The following inexact method is based on the idea of finding maximum cardinality matching in $G\left[V_{T_i},V\setminus V_{T_i}\right]$, and extending $T_i$ by this matching.
+It means that in each iteration, maximum possible number of nodes are informed.
 Maximum cardinality matching can be regarded as finding $|V_{T_i}|$ node-disjoint  binomial trees of order at most one with roots in $V_{T_i}$, maximizing the number of edges.
 By generalizing this notion, we iteratively look for $|V_{T_i}|$ node-disjoint (pruned) binomial trees of an arbitrary given order $k$ valued between 1 and $n-|S|$.
 Even though this problem is NP-hard for $k\geq 2$ \cite{jansen95}, it is expected that the computational time is sound in most practical instances.
-After obtaining the set of binomial trees, first $p$ nodes in each tree is selected and added to the broadcast forest.
+After obtaining the set of binomial trees, first $p$ nodes in each tree are selected and added to the broadcast forest.
 The parameter $p\in \{1,\dots,2^k\}$ is thus a part of the input.
-
-Alg. \ref{alg:match} describes the process more formally.
-Initially, the broadcast forest consists of isolated sources.
-The binomial trees from line 4 can be determined the ILP model \eqref{mod:genmatch}. 
-This model is a modification of formulation \eqref{mod:partition}, and uses the same type of variables.
-
-
-The objective function is to maximize the number of nodes involved in the binomial trees.
-The index set $I=\{1,\dots,2^k\}$ depents on the input parameter $k$.
-The constraints \eqref{mod:genmatch:nodeBelongs} corresponds to \eqref{mod:part:nodeBelongs}.
-It is in the form of inequality, because not all nodes are involved in the binomial trees, as we do not require to find a node partition.
-All the remaining constraints \eqref{mod:genmatch:treeHasIJ} - \eqref{mod:genmatch:dim} are in the same form as \eqref{mod:part:treeHasIJ} - \eqref{mod:part:dim}.
-The only difference between them is that in model \eqref{mod:genmatch}, the set of sources $S$ is replaced by the set $V_T$ of nodes already included in the broadcast forest.
-
 \begin{algorithm}[]
 \KwData{$G=(V,E), S\subseteq V, k\in \{1,\dots,n-|S|\}, p\in \{1,\dots,2^k\}$}
-%$U\leftarrow S$;\tcp{Set of marked nodes}
-$T_s=(V_s,A_s), V_s\leftarrow \{s\}, E_s\leftarrow\emptyset$\;
+\textbf{for }$s\in S\textbf{ do }T_s=(V_s,A_s), V_s\leftarrow \{s\}, E_s\leftarrow\emptyset$\;
+$I=\{1,\dots,2^k\}$\\
+$T=\{T_s:s\in S\}$\ ~~~\tcp{broadcast forest}
 $t\leftarrow 0$\;
-\While{$|V_T|<n$} {
-	Find a set of pruned binomial trees $B=\{B_1,\dots,B_{|V_T|}\}$ of order at most $k$ with roots in $V_T$ maximizing $|V_B|$, such that $V_{B_i}\neq V_{B_j}$ whenever $i\neq j$\;
+\While{$V_T\neq V$} {
+	$S\leftarrow V_T$\;
+	Find a set of pruned binomial trees $B=\{B_1,\dots,B_{|V_T|}\}$ of order at most $k$ with roots in $V_T$ by solving model \ref{mod:genmatch}\;
 	$V_T\leftarrow V_T\cup \{v:v\in V_B:\beta(v)\leq p\}$\;
 	$E_T\leftarrow E_T\cup \{\{u,v\}\in E_B: \beta(u)\leq p,\beta(v)\leq p\}$\;
 	$t\leftarrow t+1$\;
@@ -36,23 +24,37 @@ $t\leftarrow 0$\;
 \Return t\;
 %\Return $\lceil k/s \rceil$\;
  \caption{A method for determining an upper bound}
-\label{alg:genub}
+\label{alg:match}
 \end{algorithm}
+
+Alg. \ref{alg:match} describes the process formally.
+Initially, the broadcast forest consists of isolated sources.
+The binomial trees are determined by solving the ILP model \eqref{mod:genmatch}. 
+This model is a modification of formulation \eqref{mod:partition}, and uses the same type of variables.
+The objective function is to maximize the number of nodes involved in the binomial trees.
+%The index set $I=\{1,\dots,2^k\}$ depents on the input parameter $k$.
+The constraints \eqref{mod:genmatch:nodeBelongs} state that each node belongs to at most one binomial tree.
+Compared to \eqref{mod:part:nodeBelongs}, \eqref{mod:genmatch:nodeBelongs} is an inequality, because the binomial trees do not necessarily form a partition of $G$, and so some nodes are not used.
+The remaining constraints are taken from formulation \eqref{mod:partition}. 
+It is important to note that in every iteration, the model is solved with a different set $S$, as all nodes already included in the broadcast forest are roots of the binomial trees.
+The model considers the entire set $V$, but it is also possible to restrict this set to nodes with distance at most $k$ from some node in $V_T$.
+When this restriction is not imposed, nodes with larger distance are not a part of any binomial tree in the current iteration due to \eqref{mod:part:followArcsA} - \eqref{mod:part:followArcsB}.
 
 \begin{subequations}\label{mod:genmatch}
 \begin{align}
-\notag \max\sum\limits_{v\in V}&\sum\limits_{i\in I}\sum\limits_{s\in V_T}   y_{is}^v,\\
+\notag \max\sum\limits_{v\in V}&\sum\limits_{i\in I}\sum\limits_{s\in S}   y_{is}^v,\\
 \notag \text{s. t. } \\
-\label{mod:genmatch:nodeBelongs} \sum\limits_{i\in I}\sum\limits_{s\in V_T}y^v_{is} & \leq 1 & v\in V,\\
-\label{mod:genmatch:treeHasIJ} \sum\limits_{v\in V'}y^v_{is} & = 1 & i\in I,s\in V_T,\\
-\label{mod:genmatch:source1} y_{1s}^s & = 1  & s\in V_T,\\
+\label{mod:genmatch:nodeBelongs} \sum\limits_{i\in I}\sum\limits_{s\in S}y^v_{is} & \leq 1 & v\in V,\\
+\notag\eqref{mod:part:treeHasIJ} - \eqref{mod:part:dim}.
+%\label{mod:genmatch:treeHasIJ} \sum\limits_{v\in V'}y^v_{is} & = 1 & i\in I,s\in V_T,\\
+%\label{mod:genmatch:source1} y_{1s}^s & = 1  & s\in V_T,\\
 %\label{mod:part:noReturn} y^u_{ij}+y^v_{lj} &\leq 1 & i\in I,l\in C(i), j\in J, u\in V_\alpha,v\in V,\\
 %\label{mod:part:followArcs} y^u_{is}+y^v_{\ell s} &\leq 1 & i\in I,\ell\in C(i), s\in S, u,v\in V',(u,v)\not\in A',\\
 %\label{mod:part:followArcsA} y^u_{is}+y^v_{\ell s} &\leq 1 & i\in I,\ell\in C(i), s\in S, u,v\in V,\{u,v\}\not\in E,\\
 %\label{mod:part:followArcsB} y^{v_0}_{is}+y^v_{\ell s} &\leq 1 & i\in I,\ell\in C(i), s\in S, v\in V,\\
-\label{mod:genmatch:followArcsA}y^{v_0}_{is}+y^u_{i s} + \sum\limits_{v\in V\setminus N(u)}y^v_{\ell s}&\leq 1 & u\in V,i\in I,\ell\in C(i), s\in V_T,  \\
-\label{mod:genmatch:followArcsB}y^{v_0}_{is}+y^u_{\ell s} + \sum\limits_{v\in V\setminus N(u)}y^v_{i s}&\leq 1 & u\in V,i\in I,\ell\in C(i), s\in V_T,\\ 
-\label{mod:genmatch:dim}&&y \in \{0,1\}^{I\times V_T\times V'}.
+%\label{mod:genmatch:followArcsA}y^{v_0}_{is}+y^u_{i s} + \sum\limits_{v\in V\setminus N(u)}y^v_{\ell s}&\leq 1 & u\in V,i\in I,\ell\in C(i), s\in V_T,  \\
+%\label{mod:genmatch:followArcsB}y^{v_0}_{is}+y^u_{\ell s} + \sum\limits_{v\in V\setminus N(u)}y^v_{i s}&\leq 1 & u\in V,i\in I,\ell\in C(i), s\in V_T,\\ 
+%\label{mod:genmatch:dim}&&y \in \{0,1\}^{I\times V_T\times V'}.
 \end{align}~
 \end{subequations}
 
