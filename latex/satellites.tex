@@ -180,7 +180,7 @@ The authors of \cite{mcgarvey16} study ILP models for $c$-broadcast graphs, a ge
 
 \section{Network Model and Notation}
 
-The communication network is represented by a connected undirected unweighted graph $G=(V,E)$ and a subset $S\subseteq V$ referred to as the set of sources, where $|V|=n$. 
+The communication network is represented by a connected graph $G=(V,E)$ and a subset $S\subseteq V$ referred to as the set of sources, where $|V|=n$. 
 Let $V\left[F\right]=\{v\in V:\text{ some edge in } F \text{ is incident to } v\}, F\subseteq E$.
 For disjoint node sets $V_1,V_S\subseteq V$, we denote by $G\left[V_1,V_2\right]$ the bipartite graph $(V_1\cup V_2,E')$, where  $E'=\{\{u,v\}\in E: u\in V_1,v\in V_2\}$. 
 
@@ -210,7 +210,7 @@ For $s\in S$, a broadcast tree $T_s=(V_{T_s},E_{T_s})$ is a time-labeled directe
 \item $T_s$ is rooted at $s$ with arcs directed towards the leaves.
 \item each node $v\in V_i$ is labeled with an integer $\tau(v)=i$,
 \item for $v\in V\setminus S, v\in V_{T_s}\Leftrightarrow \pi(v)\in V_{T_s}$, 
-\item $E_{T_S}=\{\{u,v\}: u,v\in V_{T_S}, \pi(v)=u\}$, and
+\item $E_{T_s}=\{\{u,v\}: u,v\in V_{T_s}, \pi(v)=u\}$, and
 \item for two sources $s,s'\in S, s\neq s'$ we have that $V_{T_s}\cap V_{T_{s'}}=\emptyset$. 
 \end{enumerate}
 
@@ -253,11 +253,11 @@ For an instance $(G,S)$ of Problem \ref{prob:min},
 $$\left\lceil\log\frac{n}{|S|}\right\rceil\leq t^* \leq n-|S|.$$
 \end{observation}
 
-In the following, we use $d$-step Fibonacci numbers \cite{noe05}, a generalization of well known (2-step) Fibonacci numbers, defined by letting, 
-$F^{(d)}_k=0$ for $k\leq 0$, $F^{(d)}_1=1$, and 
+In the following, we use $m$-step Fibonacci numbers \cite{noe05}, a generalization of well known (2-step) Fibonacci numbers, defined by letting, 
+$F^{(m)}_k=0$ for $k\leq 0$, $F^{(m)}_1=1$, and 
 other terms according to linear recurrence relation 
 \begin{align*}
-F^{(d)}_k &=\sum\limits_{i=1}^d F^{(d)}_{k-i}, &\text{ for } k\geq 2.
+F^{(m)}_k &=\sum\limits_{i=1}^m F^{(m)}_{k-i}, &\text{ for } k\geq 2.
 \end{align*}
 
 Consider a $d$-regular graph with a unique source $s$.
@@ -303,17 +303,17 @@ An additional knowledge of a degree sequence of $G$ can be exploited.
 \begin{lemma}
 \label{lemma:degorder}
 Let $(d_1,\dots,d_n)$ be a degree sequence and $t\leq \bar{t}-|S|$ a given delay.
-The maximum number of nodes informed within $t$ time steps is achieved if nodes become informad in the order of their decreasing degree.
+The maximum number of nodes informed within $t$ time steps is achieved if nodes become informed in the order of their decreasing degree.
 \end{lemma}
 \begin{proof}
-A node with degree $d_i$ informed in $i$-th time step can inform at most $\min\{d_i-1,t-1\}$ nodes.
+A node with degree $d_i$ informed in $i$-th time step can inform at most $\min\{d_i-1,t-i\}$ nodes.
 Consider $l,k$ such that $1\leq k < \ell\leq n$ and nodes $v_k$, $v_\ell$ with $\deg(v_k)=d_k$ and $\deg(v_\ell)=d_\ell$.
 Then, $d_k-1>d_\ell-1$ and $t-k > t-\ell$.
 If nodes are informed in the order of their decreasing degree, let $K_1$ and $L_1$ be the number of nodes that can be informed by $v_k$ and $v_l$, respectively:
 $$
 K_1=\min\{d_k-1,t-k\}, ~~~ L_1=\min\{d_\ell-1,t-\ell\}.
 $$
-If the order in which $v_k$ and $v_l$ are informed is swithced, i.e. when $v_k$ and $v_\ell$ is informed in the $\ell$-th and $k$-th time step, respectively, 
+If the order in which $v_k$ and $v_l$ are informed is switched, i.e. when $v_k$ and $v_\ell$ is informed in the $\ell$-th and $k$-th time step, respectively, 
 we use $K_2$ and $L_2$ to denote the maximum number of nodes informed by $v_k$ and $v_\ell$:
 $$
 K_2=\min\{d_k-1,t-\ell\} ~~~ L_2=\min\{d_\ell-1,t-k\}.
@@ -382,7 +382,7 @@ If $G$ is an arbitrary graph with $n$ nodes, $m$ sources and node degrees $d_i$,
 \end{proposition}
 \begin{proof}
 The assumption that nodes with higher degree in $G$ are informed first in the optimal solution is justified by Lemma \ref{lemma:degorder}.
-In each iteration $k$, Alg. \ref{alg:dreg} degrees in $T^k$ of maximum possible number of nodes are increased in the order of their decreasing degree.
+In each iteration $k$, degrees in $T^k$ of maximum possible number of nodes are increased in the order of their decreasing degree.
 The current maximum possible number of informed nodes is stored in the variable $c$, and is updated at the end of the outre loop.
 So, when the condition $c<n$ is tested on line 7, $c$ contains the correct value of number of nodes in $V_k$.
 As soon as it is possible that at least $n$ nodes are informed, the algorithm returns the number of necessary iterations.

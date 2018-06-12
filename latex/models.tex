@@ -13,34 +13,41 @@ $$ x_{uv}^k=
 \end{cases}
 z_{k}=\begin{cases}
 1, \text{ if } k\leq\tau(G,S),\\
-0, \text{ otherwise},
+0, \text{ otherwise}.
 \end{cases}
 $$
-and a variable $t^*$ representing the number of necessary time steps.
 The worst case scenario is when $G$ is a path $v_1,\dots,v_n$ with $S=\{v_1\}$. 
-In such an instance, the necessary number of time steps is $n-1$, which gives a trivial upper bound $\bar{t}=n-s$ on the value of $t^*$.
+In such an instance, the necessary number of time steps is $n-1$, which gives a trivial upper bound $\bar{t}=n-s$ on the broadcast time.
 Problem \ref{prob:min} is then formulated as follows: 
 \begin{subequations}\label{mod:basic}
 \begin{align}
 \label{mod:basic:obj} \min \sum\limits_{k=1}^{\bar{t}}z_k \\ 
-\label{mod:basic:onefromroot} \sum_{u \in N(s)}x^1_{su} & \leq 1 & s\in S,\\
+\notag \text{s. t. } \\
+\label{mod:basic:onefromroot} \sum_{v \in N(s)}x^1_{sv} & \leq 1 & s\in S,\\
 \label{mod:basic:singlein} \sum\limits_{k=1}^{\bar{t}}\sum\limits_{v\in N(u)}x_{vu}^k & = 1 & u\in V \setminus S,\\
-\label{mod:basic:uniqueTout} \sum\limits_{v\in N(u)}x_{uv}^k & \leq 1  & k=1,\dots,\bar{t},u\in V,\\
+%\label{mod:basic:uniqueTout} \sum\limits_{v\in N(u)}x_{uv}^k & \leq 1  & u\in V,k=1,\dots,\bar{t},\\
 %\label{mod:basic:tIncreases} \sum\limits_{v\in N(u)}x_{uv}^k &\leq\sum\limits_{\ell=1}^{k-1}\sum\limits_{w\in N(u)\setminus\{v\}} x_{wu}^{\ell}  & u\in V\setminus S, k=2,\dots,\bar{t},\\
-\label{mod:basic:tIncreases} x_{uv}^k &\leq\sum\limits_{\ell=1}^{k-1}\sum\limits_{w\in N(u)\setminus\{v\}} x_{wu}^{\ell}  & \{u,v\}\in V\setminus S, k=2,\dots,\bar{t},\\
-\label{mod:basic:tcrel} \sum\limits_{k=1}^{\bar{t}}k\cdot x_{uv}^k & \leq t^* &  (u,v)\in A,\\
+\label{mod:basic:tIncreases} x_{uv}^k &\leq\sum\limits_{\ell=1}^{k-1}\sum\limits_{w\in N(u)\setminus\{v\}} x_{wu}^{\ell}  & \{u,v\}\in E, u\not\in S, k=2,\dots,\bar{t},\\
+%\label{mod:basic:tcrel} \sum\limits_{k=1}^{\bar{t}}k\cdot x_{uv}^k & \leq t^* &  (u,v)\in A,\\
+\label{mod:basic:tcrel} \sum\limits_{v\in N(u)}x_{uv}^k & \leq z_k &  u\in V,k=1,\dots,\bar{t},\\
 %\label{mod:basic:tcrel} \sum\limits_{t=1}^{n-1}t\sum\limits_{j\in N(i)}x_{ij}^k & \leq c &  i\in V,\\
 \label{mod:basic:positiveCost}x_{uv}^1 & = 0 & (u,v)\in A, u \in V\setminus S,\\
-\label{mod:basic:dim}&&x \in \{0,1\}^{A\times V},t^*\in\{1,\dots,\bar{t}\}.
+\label{mod:basic:dim}&&x \in \{0,1\}^{A\times V},z\in\{0,1\}^{\bar{t}}.
 \end{align}~
 \end{subequations}
 %Constraints \eqref{mod:basic:onefromroot} indicate that for each source node $s$, there is at most one adjacent node $u\in V_1$ such that $\pi(u)=s$.
-By \eqref{mod:basic:singlein}, for every non-source node $u$, there is exactly one node $v$ such that $\pi(u)=v$.
-Constraints \eqref{mod:basic:uniqueTout} enforce that for each node $u\in V$ and each subset $V_k$, there is at most one adjacent node $v\in V_k$ with $\pi(v)=u$.
-The requirement that a non-source node has a neighbor $v\in V_k$ such that $\pi(v)=u$ only if there exists a node $w\in V_{k-1}$ such that $\pi(u)=w$ is modeled by \eqref{mod:basic:tIncreases}. 
+Constraints \eqref{mod:basic:onefromroot} indicate that each source node $s$ forwards the signal to at most one adjacent node $v$ in the first time step. 
+%By \eqref{mod:basic:singlein}, for every non-source node $u$, there is exactly one node $v$ such that $\pi(u)=v$.
+By \eqref{mod:basic:singlein}, every non-source node $u$ receives the signal from exactly one adjacent node $v$ in some time step $k$.
+%The requirement that a non-source node has a neighbor $v\in V_k$ such that $\pi(v)=u$ only if there exists a node $w\in V_{k-1}$ such that $\pi(u)=w$ is modeled by \eqref{mod:basic:tIncreases}. 
+The requirement that a non-source node $u$ informs a neighbor $v$ in the $k$-th time step only if $u$ is informed by some adjacent node $w$ in an earlier time step is modeled by \eqref{mod:basic:tIncreases}. 
+%Constraints \eqref{mod:basic:uniqueTout} enforce that for each node $u\in V$ and each subset $V_k$, there is at most one adjacent node $v\in V_k$ with $\pi(v)=u$.
+Constraints \eqref{mod:basic:tcrel} enforce that each node $u\in V$ forwards the signal to at most one adjacent node $v$ in each time step.
+It also sets a correct value to the variable $z$ that appears in the objective function.
 %The requirement that only informed nodes can relay a signal is modeled by \eqref{mod:basic:tIncreases}. 
 %The maximum time step at which any transmission takes place is captured by \eqref{mod:basic:tcrel}, and finally, \eqref{mod:basic:positiveCost} states that a node that is not a source never transmits in the first time step.
-The length of the sequence of subsets is captured by \eqref{mod:basic:tcrel}, and finally, \eqref{mod:basic:positiveCost} state that if $\pi(v)\not\in S$ for some $j\in V$, then $v\not\in V_1$.
+%The length of the sequence of subsets is captured by \eqref{mod:basic:tcrel}, and finally, \eqref{mod:basic:positiveCost} state that if $\pi(v)\not\in S$ for some $j\in V$, then $v\not\in V_1$.
+Finally, \eqref{mod:basic:positiveCost} state that non-source nodes do not transmit in the first time step.
 \subsection{Binomial tree model}
 
 The binomial tree $B^k$ of order $k$ is an ordered tree defined recursively as follow \cite{cormen90}:
@@ -75,7 +82,7 @@ if $r\in S$ is the root of $B^k$, then $\tau(B^k,\{r\})=k$.
 	}
  ;
 \end{tikzpicture}
-\caption{A binomial tree with nodes labeled by their $\beta$-positions}
+\caption{A binomial tree with nodes labeled by their positions}
 \label{fig:beta}
 \end{figure}
 
@@ -95,7 +102,6 @@ This function is defined recursively as
 \end{cases}
 \end{equation*}
 Nodes in Fig. \ref{fig:beta} are labeled with their $\beta$-values.
-
 Pairs of integers that are assigned to adjacent nodes in a binomial tree are defined by relation
 \begin{equation*}
 \label{eq:betarel}
@@ -172,20 +178,16 @@ Nodes are associated with integers from $I$ assigned according to the following 
 \subsubsection{The formulation}
 Consider a graph $G'=(V',E')$ constructed  by adding a universal node $v_0$ to $G$. 
 The set of nodes and edges is then $V'=V\cup \{v_0\}$ and $E'=E\cup\{\{v_0,v\}:v\in V\}$.
-The ILP model based on partition into binomial trees uses variables
+Apart from $z$-variables introduced in model \eqref{mod:basic}, the ILP formulation based on partition into binomial trees uses 
 $$
 y_{is}^v=\begin{cases}
 1, \text{ if } \beta(v)=i \text{ and } \alpha(v)=s,\\ 
 0, \text{ otherwise},\\
 \end{cases}
-z_{j}=\begin{cases}
-1, \text{ if } j\leq\tau(G,S),\\
-0, \text{ otherwise},
-\end{cases}
 $$
 where $v\in V'$, $i\in I$, $s\in S$ and $0\leq j\leq \bar{t}$. 
 With the definition of $G'$ above, it is straightforward to specify constraints that enforce desired values for $y$-variables.
-Whenever $y_{is}^{v_0}=1$, it indicates that the binomial tree $B^t_s$ is pruned at node with position $i$.
+Whenever $y_{is}^{v_0}=1$, it indicates that the binomial tree rooted at $s$ is pruned at node with position $i$.
 %An obvious weakness of this approach is  that the number of nodes increases to $|V''|=\mathcal{O}(ns)$, and the dimension of variables is thus $\mathcal{O}(n^2s^2)$.
 %However, once a suitable partition is found, the arcs of binomial trees contained in $K_\alpha$ can be diversely shuffled while preserving the layour of binomial trees in $G$.
 %Instead of adding the entire complete graph $K_\alpha$, a single node $v_0$ with a loop $(v_0,v_0)$ is connected as an apex to the original $G$.
@@ -275,7 +277,7 @@ and so there must not be two nodes in $W_m$ with positions $i$ and $\ell$ at the
 
 \subsubsection{Symmetry removal}
 Another improvement of this model is achieved by a symmetry removal.
-If a broadcast tree is identical to a binomial tree, we notice that nodes with labels from $C(i)$, i.e., children of some node $v$ with $\beta(v)=i$ are informed in increasing time steps.
+If a broadcast tree is identical to a binomial tree, we notice that nodes with labels from $C(i)$, i.e., children of some node $v$ with $\beta(v)=i$, are informed in increasing time steps.
 For example in $B^3$, $C(2)=\{4,6\}$ and the corresponding nodes are informed in time step 2 and 3, respectively.
 If a label $\ell\in C(i)$ corresponds to a node of a binomial tree that is pruned (if $y^{v_0}_{\ell s}=1$ for some $s\in S$), 
 all labels $j\in C(i)$ such that $j>\ell$ can also be pruned. 

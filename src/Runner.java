@@ -17,8 +17,8 @@ public class Runner {
 	public void run() {
 		AMPL ampl = new AMPL();
 		try {
-			fibonacciLB(200, 1, 7);
-			System.exit(0);
+			//fibonacciLB(200, 1, 7);
+			//System.exit(0);
 			
 			// read ampl data file
 			// set solver to cplex
@@ -34,26 +34,7 @@ public class Runner {
 			Objective obj = ampl.getObjective("time");
 			double objval = obj.value();
 			System.out.println("sat objective: " + objval);
-			ampl.reset();
 
-			// Solve decision problem
-			System.out.println("Reading partition model...");
-			ampl.read("models/partition-apex.mod");
-			ampl.readData(amplFileName);
-			Parameter k = ampl.getParameter("k");
-			System.out.println("Setting parameter k of the decision problem to the objective value: " + objval);
-			k.set(objval);
-			ampl.solve();
-			
-			objval = objval - 1;
-			System.out.println("Setting parameter k of the decision problem to something less than obj: " + objval);
-			k.set(objval - 1);
-			ampl.solve();
-	
-//			obj = ampl.getObjective("time");
-//			objval = obj.value();
-//			System.out.println("partition objective: " + objval);
-			
 			Variable x = ampl.getVariable("x");
 			// Obtain data of variable x and display them
 			DataFrame dfx = x.getValues();
@@ -62,6 +43,47 @@ public class Runner {
 			double[] j_s = dfx.getColumnAsDoubles(headers[1]);
 			double[] v_s = dfx.getColumnAsDoubles(headers[2]);
 			double[] xvals = dfx.getColumnAsDoubles(headers[3]);
+			for (int i = 0; i < xvals.length; i++) {
+				if (xvals[i] == 1.0) {
+					System.out.printf("%3d %3d %3d\n", (int) i_s[i], (int) j_s[i], (int) v_s[i]);
+				}
+			}
+
+			ampl.reset();
+
+			System.out.println("Reading modified sat model");
+			ampl.read("models/sat-bin.mod");
+			ampl.readData(amplFileName);
+			ampl.solve();
+			obj = ampl.getObjective("time");
+			objval = obj.value();
+			System.out.println("sat next objective: " + objval);
+			// Solve decision problem
+	//		System.out.println("Reading partition model...");
+	//		ampl.read("models/sat-bin.mod");
+	//		ampl.readData(amplFileName);
+	//		Parameter k = ampl.getParameter("k");
+	//		System.out.println("Setting parameter k of the decision problem to the objective value: " + objval);
+	//		k.set(objval);
+	//		ampl.solve();
+			
+	//		objval = objval - 1;
+	//		System.out.println("Setting parameter k of the decision problem to something less than obj: " + objval);
+	//		k.set(objval - 1);
+	//		ampl.solve();
+	
+//			obj = ampl.getObjective("time");
+//			objval = obj.value();
+//			System.out.println("partition objective: " + objval);
+			
+			x = ampl.getVariable("x");
+			// Obtain data of variable x and display them
+			 dfx = x.getValues();
+			headers = dfx.getHeaders();
+			i_s = dfx.getColumnAsDoubles(headers[0]);
+			j_s = dfx.getColumnAsDoubles(headers[1]);
+			v_s = dfx.getColumnAsDoubles(headers[2]);
+			xvals = dfx.getColumnAsDoubles(headers[3]);
 			for (int i = 0; i < xvals.length; i++) {
 				if (xvals[i] == 1.0) {
 					System.out.printf("%3d %3d %3d\n", (int) i_s[i], (int) j_s[i], (int) v_s[i]);
