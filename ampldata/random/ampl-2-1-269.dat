@@ -1,5 +1,0 @@
-# 55063
-param k := 1;
-param n := 2;
-param s := 1;
-set E :=  (0,1);
