@@ -1,0 +1,25 @@
+
+		reset;
+		option solver '../cplex';
+		option cplex_options 'timing 1';
+		model ./SatelliteModels/models/matching.mod;
+		data ./ampldata/ins_50_1.dat;
+		
+		print '---------------------------------Solving MATCHING';		
+		option relax_integrality 0;
+	 	option cplex_options 'mipdisplay 2';	
+		option cplex_options 'timelimit=100'; 
+		param iterCnt default 0;
+		repeat while card(S) < n {
+			let iterCnt := iterCnt + 1;
+			solve;
+			display S;
+			display x;
+			for {j in S} {
+				for {v in V_G} {
+					if x[2,j,v] == 1 then let S := S union {v};
+				}
+			}
+		}
+		printf "The number of time steps is %d\n", iterCnt;
+

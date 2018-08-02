@@ -1,0 +1,5 @@
+# 58314
+param k := 2;
+param n := 3;
+param s := 1;
+set E :=  (0,1) (1,2);
