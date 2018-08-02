@@ -6,11 +6,21 @@ public class Main {
 		Runner r = null;
 		//System.out.println("iter: " + args[0]);
 		if (args.length == 1) { // ampl data file as an input
-			r = new Runner(args[0]);
+			r = new Runner(args[0], -1);
 			r.run();
 		} else if (args.length == 0) { // default file
-			r = new Runner("data/disconnected.dat");
-			r.run();
+			int iter = 1;
+			int n = 10;
+			int s = 4;
+			float d =  (float) 0.2;
+			for (int i = 0; i < iter; i++) {
+				Graph g = new Graph(n, s, d);
+				String amplFileName = g.generateAMPL();
+				r = new Runner(amplFileName, g.id);
+				r.run();
+			}
+//			r = new Runner("data/disconnected.dat", -1);
+//			r.run();
 		} else if (args.length == 4) { // 4 args for generating a random graph
 										// (# iteration, # nodes, # sources,
 										// density of edges)
@@ -21,7 +31,8 @@ public class Main {
 			for (int i = 0; i < iter; i++) {
 				Graph g = new Graph(n, s, d);
 				String amplFileName = g.generateAMPL();
-				r = new Runner(amplFileName);
+				r = new Runner(amplFileName, g.id);
+				r.setGraph(g);
 				r.run();
 			}
 		} else {

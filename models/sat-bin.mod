@@ -4,8 +4,8 @@ param n; # Total number of satellites
 param s; # Number of source satellites
 param tmax = n - 1;
 # Sets:
-set V = 1 .. n; # 0 is the ground antenna
-set S = 1 .. s;
+set V = 0 .. n - 1; # 0 is the ground antenna
+set S = 0 .. s - 1;
 set E within {(i,j) in V cross V: i<j};
 #set E0 = {(0,i) in (V cross V): i in S};
 #let E := E union E0;
@@ -14,15 +14,15 @@ set N{i in V} within V = {j in V: (i,j) in E || (j,i) in E};
 
 # Variables:
 var x{(i,j) in A, t in 1..tmax} binary;
-var c >= 0, <= tmax, integer;
+var z{i in 1 .. tmax} binary;
 
 # Objective function:
-minimize time: c;
+minimize time: sum{i in 1..tmax} z[i];
 
 # Constraints:
 
-#subject to sourceFirst {v in S}:
-#	sum{i in N[v]} x[v,i,1] <= 1;
+subject to sourceFirst {v in S}:
+	sum{i in N[v]} x[v,i,1] <= 1;
 
 subject to allReceive {u in (V diff S)}:
 	sum{t in 1 .. tmax, v in N[u]} x[v,u,t] = 1;
@@ -36,8 +36,8 @@ subject to oneAtATime {t in 1..tmax, u in V}:
 subject to inIfOut {u in (V diff S), t in 2..tmax}:
 	sum{v in N[u]} x[u,v,t] <= sum{l in 1..t-1, w in N[u]} x[w,u,l];
 
-subject to xcrel {(u,v) in A}:
-	sum{t in 1..tmax} (t *x[u,v,t]) <= c;
+subject to xcrel {u in V, t in 1..tmax}:
+	sum{v in N[u]} x[u,v,t] <= z[t];
 
 #subject to xcrel {u in V, t in 1..tmax}:
 #	sum{v in N[u]} x[u,v,t] <= c;

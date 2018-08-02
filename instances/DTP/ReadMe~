@@ -1,0 +1,16 @@
+Folder "DTP" contains  three sub-folders (Range_100, Range_125 and Range_150).
+Each sub-folder contains 18 instances.
+Folder "Range_100" contains instances with the range 100m.
+Folder "Range_125" contains instances with the range 125m.
+Folder "Range_150" contains instances with the range 150m.
+---------------------------------------------------------
+Instance representation.
+First row indicates number of nodes and number of edges.
+From second row onward are adjacency list of edges in the graph with weight on that edge.
+For example---->
+Total_number_of_nodes   Total_number_of_edges
+node  node  weight
+       .
+       .
+       .
+node  node  weight     

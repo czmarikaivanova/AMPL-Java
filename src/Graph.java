@@ -11,7 +11,7 @@ import java.util.Random;
 
 public class Graph {
 
-	final int defaultK = 4;
+	final int defaultK = 6;
 	boolean[][] M;
 	int s; // # of source sats
 	int n;
@@ -85,24 +85,24 @@ public class Graph {
 		this.delta = delta;
 		M = new boolean[n][n];
 		ArrayList<ArrayList<Integer>> sets = new ArrayList<ArrayList<Integer>>();
-		ArrayList<Integer> firstSet = new ArrayList<Integer>();
-		sets.add(firstSet);
+//		ArrayList<Integer> firstSet = new ArrayList<Integer>();
+//		sets.add(firstSet);
 		for (int i = 0; i < n; i ++) {  // init sets
-			if (i <= s) {
-				firstSet.add(i);
-				if (i > 0) {
-					M[0][i] = true;
-				}
-			}
-			else {
+//			if (i < s) {
+//				firstSet.add(i);
+//				//if (i > 0) {
+//					M[0][i] = true;
+//				//}
+//			}
+//			else {
 				ArrayList<Integer> set =  new ArrayList<Integer>();
 				set.add(i);
 				sets.add(set);
-			}
+//			}
 		}
 		while (sets.size() > 1) {
-			int u = rnd.nextInt(n-1) + 1;
-			int v = rnd.nextInt(n-1) + 1;
+			int u = rnd.nextInt(n);
+			int v = rnd.nextInt(n);
 			ArrayList<Integer> Lu = findSet(sets, u);
 			ArrayList<Integer> Lv = findSet(sets, v);
 			if (Lu != Lv) {
@@ -112,7 +112,7 @@ public class Graph {
 			}
 		}
 		// add remaining edges according to given density delta
-		for (int i = 1; i < n; i++) {
+		for (int i = 0; i < n; i++) {
 			for (int j = i+1; j < n; j++) {
 				if (!M[i][j]) {
 					float rndF = rnd.nextFloat();
@@ -179,12 +179,12 @@ public class Graph {
             System.out.println("Saving: AMPL input");
             FileWriter fw = new FileWriter(datafile,false); //the true will append the new data
             fw.write("# " + id + "\n");
-            int nodeCnt = n-1; // number of nodes without the artificial source 0;
+            int nodeCnt = n; // number of nodes without the artificial source 0;
             fw.write("param k := " + defaultK + ";\n");
             fw.write("param n := " + nodeCnt + ";\n");
             fw.write("param s := " + s + ";\n");
             fw.write("set E := ");
-            for (int i = 1; i < n; i ++) {
+            for (int i = 0; i < n; i ++) {
             	for (int j = i + 1; j < n; j++) {
             		if (M[i][j]) {
             			fw.write(" (" + i + "," + j + ")");
