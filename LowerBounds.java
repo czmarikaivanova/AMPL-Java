@@ -17,15 +17,17 @@ public class LowerBounds {
 	static int maxDeg;
 	
 	public static void main(String[] args) {
-		System.out.println("arg 0:" + args[0]);
-		System.out.println("arg 1:" + args[1]);
 		amplFile = new File(args[0]);
-		System.out.println("number of args: " + args.length);
 		objFile = new File(args[1]);
 		maxDeg = 0;
 		nodeCnt = findParam("param n");
 		sourceCnt = findParam("param s");
-		printResToFile(logBound(), degSecBound(), fibBound(nodeCnt, sourceCnt, maxDeg));
+		int logB = logBound();
+		int degB = degSecBound();
+		int fibB = fibBound(nodeCnt, sourceCnt, maxDeg);
+		printResToFile(logB, degB, fibB);
+		int lb = Math.max(Math.max(logB,degB),fibB);
+		System.exit(lb);
 	}
 
 	private static void printResToFile(int lb, int dsb, int fb) {
@@ -47,7 +49,7 @@ public class LowerBounds {
 	private static int logBound() {
 		double frac = nodeCnt / sourceCnt;
 		int lb =  (int) Math.ceil((Math.log(frac)/ Math.log(2)));
-		System.out.println("Logarithmic bound : " + lb);
+		//System.out.println("Logarithmic bound : " + lb);
 		return lb;
 		
 	}
@@ -60,7 +62,7 @@ public class LowerBounds {
 		    	if (line.contains(paramStr)) {
 		    		String[] words = line.split(" ");
 		    		String lastWord = words[words.length - 1];
-				System.out.println(lastWord);
+				//System.out.println(lastWord);
 		    		String numStr = lastWord.substring(0, lastWord.length() - 1);
 		    		paramVal = Integer.parseInt(numStr);
 		    	}
@@ -112,7 +114,7 @@ public class LowerBounds {
 			e.printStackTrace();
 		}
 		int db =  degSec(degrees);
-		System.out.println("Degree bound: " + db);
+		//System.out.println("Degree bound: " + db);
 		return db;
 	}
 
@@ -123,7 +125,7 @@ public class LowerBounds {
 		}
 		int c = sourceCnt;
 		int k = 0;
-		System.out.println("c: " + c + " nodeCnt: " + nodeCnt);
+		//System.out.println("c: " + c + " nodeCnt: " + nodeCnt);
 		while (c < nodeCnt) {
 			k++;
 			int cn = 0;
@@ -152,13 +154,13 @@ public class LowerBounds {
 				fib[k] += (k - i  >= 0 ? fib[k-i] : 0);
 			}
 		}
-		for (int i = 0; i < fib.length; i++) {
-			System.out.println(i + ": " + fib[i]);
-		}
+	//	for (int i = 0; i < fib.length; i++) {
+	//		System.out.println(i + ": " + fib[i]);
+	//	}
 //		int fb = (int) Math.ceil(k / s);
 		int fb = k;
-		System.out.println("max deg: " + d);
-		System.out.println("Fibonacci bound: " + fb);
+		//System.out.println("max deg: " + d);
+		//System.out.println("Fibonacci bound: " + fb);
 		return fb;
 	}
 

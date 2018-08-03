@@ -1,45 +1,47 @@
-
-		reset;
-		option solver '../cplex';
+  
+		option solver '/opt/ibm/ILOG/CPLEX_Studio1251/cplex/bin/x86-64_sles10_4.1/cplexamp';
 		option cplex_options 'timing 1';
-		model ./SatelliteModels/models/sat.mod;
-		data ./ampldata/inst-100-5-259.dat;
-		
-		print '---------------------------------Solving SAT IP';		
+		option eexit -10000;
+		print '---------------------------------Solving BT-int-opt';		
+		reset;
+		model ./models/BT-int-opt.mod;
+		data ./ampldata/inst-50-1-40.dat;
+		let tmax := 7;		
 		option relax_integrality 0;
 	 	option cplex_options 'mipdisplay 2';	
 		option cplex_options 'timelimit=1200'; 
 		solve;
+		display x;
 		printf '%4.2f\t', _solve_elapsed_time >> timelog.txt;
 		printf '%2.2f\t', time >> objlog.txt;
-
-#		print '---------------------------------Solving SAT LP';		
-#		option relax_integrality 1;
-#	 	option cplex_options 'lpdisplay 1';	
-#		solve;
-#		printf '%4.2f\t', _solve_elapsed_time >> timelog.txt;
-#		printf '%2.2f\t', time >> objlog.txt;
-
 		print '---------------------------------Solving PART IP - DAG ';
 		option relax_integrality 0;
 		reset; 
-		model ./SatelliteModels/models/partition-dec.mod;
-		data ./ampldata/inst-100-5-259.dat;
+		model ./models/partition-dec.mod;
+		data ./ampldata/inst-50-1-40.dat;
 		drop followArcs;
 		display k;
-		for {i in k..n} {
+		for {i in 6..7} {
 		        reset data;
-			data ./ampldata/inst-100-5-259.dat;
+			data ./ampldata/inst-50-1-40.dat;
 		        let k := i;
 			option cplex_options 'timelimit=1200'; 
 		        solve;
 		        if solve_result = 'solved' then {
 				printf '%4.2f\t', _solve_elapsed_time >> timelog.txt;
 				printf '%2.2f\t', i >> objlog.txt;
-				display x;
+			#	display x;
 		                printf 'Optimal value: %d',i;
 		                break;
-		        }
+			}
+		       	if solve_result = 'infeasible' then {
+				if i = 7-1 then {
+					printf 'Infeasible solution for iteration %d, but upper bound %d can now be used',i,7;
+					printf '%4.2f\t', _total_solve_elapsed_time >> timelog.txt;
+					printf '%2.2f\t', 7 >> objlog.txt;
+		                	break;
+				}
+			}
 			printf 'Solve result status number: %d', solve_result_num;
 			 if solve_result = 'limit' then {
 				printf '%4.2f\t', _solve_elapsed_time >> timelog.txt;
@@ -50,57 +52,43 @@
 
 		        printf 'Infeasible for k = %d',i;
 	        }	
-		print '---------------------------------Solving PART IP - MARIKA';		
+		print '---------------------------------Solving BT-int-dec';		
 		option relax_integrality 0;
-		reset;
-		model ./SatelliteModels/models/partition-dec.mod;
-		data ./ampldata/inst-100-5-259.dat;
-		drop followArcsA;
-		drop followArcsB;
-		display k;
-		for {i in k..n} {
+		reset; 
+		model ./models/BT-int-dec.mod;
+		data ./ampldata/inst-50-1-40.dat;
+		for {i in 6..7} {
 		        reset data;
-			data ./ampldata/inst-100-5-259.dat;
-		        let k := i;
+			data ./ampldata/inst-50-1-40.dat;
+		        let tmax := i;
 			option cplex_options 'timelimit=1200'; 
 		        solve;
 		        if solve_result = 'solved' then {
-				printf '%4.2f\n', _solve_elapsed_time >> timelog.txt;
+				printf '%4.2f\t', _total_solve_elapsed_time >> timelog.txt;
 				printf '%2.2f\t', i >> objlog.txt;
 				display x;
 		                printf 'Optimal value: %d',i;
 		                break;
 		        }
+			if solve_result = 'infeasible' then {
+				if i = 7-1 then {
+					printf 'Infeasible solution for iteration %d, but upper bound %d can now be used',i,7;
+					printf '%4.2f\t', _total_solve_elapsed_time >> timelog.txt;
+					printf '%2.2f\t', 7 >> objlog.txt;
+		                	break;
+				}
+			}
 			printf 'Solve result status number: %d', solve_result_num;
 			 if solve_result = 'limit' then {
-				printf '%4.2f\n', _solve_elapsed_time >> timelog.txt;
+				printf '%4.2f\t', _solve_elapsed_time >> timelog.txt;
 				printf '%2.2f\t', i >> objlog.txt;
 		                printf 'Time limit exceeded. Best value found (LB): %d',i;
 		                break;
 		        }
 
 		        printf 'Infeasible for k = %d',i;
-		
-		}
+	        }	
 
-                print '---------------------------------Solving MATCHING';
-                option relax_integrality 0;
-                reset;
-                model ./SatelliteModels/models/matching.mod;
-                data ./ampldata/inst-100-5-259.dat;
-                let k := 2;
-		param iterCnt default 0;
-                repeat while card(S) < n {
-                        let iterCnt := iterCnt + 1;
-                        solve;
-                        display S;
-                        display x;
-                        for {j in S} {
-                                for {v in V_G} {
-                                        if x[2,j,v] == 1 then let S := S union {v};
-                                }
-                        }
-                }
-		printf '%2.2f\n', iterCnt >> objlog.txt;
+		printf '%2.2f\n', 7 >> objlog.txt;
  
 	

@@ -15,30 +15,54 @@ function ceil {
 function makeAMPLRun {
 	logid $1
 	javac -cp . LowerBounds.java
-	java -cp . LowerBounds $1 objlog.txt			
-	touch cmds.run
+	java -cp . LowerBounds $1 objlog.txt
+	lb=$?
+	touch cmds-ub.run
 	echo "
-		reset;
-		option solver '../cplex';
+		option solver '/opt/ibm/ILOG/CPLEX_Studio1251/cplex/bin/x86-64_sles10_4.1/cplexamp';
 		option cplex_options 'timing 1';
-		model ./models/sat.mod;
+		print '---------------------------------Solving MATCHING';
+                option relax_integrality 0;
+                reset;
+                model ./models/matching.mod;
+                data ./$1;
+                let k := 2;
+		param iterCnt default 0;
+                repeat while card(S) < n {
+                        let iterCnt := iterCnt + 1;
+                        solve;
+                        #display S;
+                        #display x;
+                        for {j in S} {
+                                for {v in V_G} {
+                                        if x[2,j,v] == 1 then let S := S union {v};
+                                }
+                        }
+                }
+		printf 'iterCnt is %d',iterCnt;
+		print iterCnt > iterCnt.txt;
+	" > cmds-ub.run
+	ampl-bin cmds-ub.run
+	read ub < iterCnt.txt
+	echo lower bound is $lb
+	echo upper bound is $ub
+	touch cmds.run
+	echo "  
+		option solver '/opt/ibm/ILOG/CPLEX_Studio1251/cplex/bin/x86-64_sles10_4.1/cplexamp';
+		option cplex_options 'timing 1';
+		option eexit -10000;
+		print '---------------------------------Solving BT-int-opt';		
+		reset;
+		model ./models/BT-int-opt.mod;
 		data ./$1;
-		
-		print '---------------------------------Solving SAT IP';		
+		let tmax := $ub;		
 		option relax_integrality 0;
 	 	option cplex_options 'mipdisplay 2';	
 		option cplex_options 'timelimit=1200'; 
 		solve;
+		display x;
 		printf '%4.2f\t', _solve_elapsed_time >> timelog.txt;
 		printf '%2.2f\t', time >> objlog.txt;
-
-#		print '---------------------------------Solving SAT LP';		
-#		option relax_integrality 1;
-#	 	option cplex_options 'lpdisplay 1';	
-#		solve;
-#		printf '%4.2f\t', _solve_elapsed_time >> timelog.txt;
-#		printf '%2.2f\t', time >> objlog.txt;
-
 		print '---------------------------------Solving PART IP - DAG ';
 		option relax_integrality 0;
 		reset; 
@@ -46,19 +70,27 @@ function makeAMPLRun {
 		data ./$1;
 		drop followArcs;
 		display k;
-		for {i in k..n} {
+		for {i in $lb..$ub} {
 		        reset data;
 			data ./$1;
 		        let k := i;
 			option cplex_options 'timelimit=1200'; 
 		        solve;
 		        if solve_result = 'solved' then {
-				printf '%4.2f\t', _solve_elapsed_time >> timelog.txt;
+				printf '%4.2f\t', _total_solve_elapsed_time >> timelog.txt;
 				printf '%2.2f\t', i >> objlog.txt;
-				display x;
+			#	display x;
 		                printf 'Optimal value: %d',i;
 		                break;
-		        }
+			}
+		       	if solve_result = 'infeasible' then {
+				if i = $ub-1 then {
+					printf 'Infeasible solution for iteration %d, but upper bound %d can now be used',i,$ub;
+					printf '%4.2f\t', _total_solve_elapsed_time >> timelog.txt;
+					printf '%2.2f\t', $ub >> objlog.txt;
+		                	break;
+				}
+			}
 			printf 'Solve result status number: %d', solve_result_num;
 			 if solve_result = 'limit' then {
 				printf '%4.2f\t', _solve_elapsed_time >> timelog.txt;
@@ -69,61 +101,47 @@ function makeAMPLRun {
 
 		        printf 'Infeasible for k = %d',i;
 	        }	
-		print '---------------------------------Solving PART IP - MARIKA';		
+		print '---------------------------------Solving BT-int-dec';		
 		option relax_integrality 0;
-		reset;
-		model ./models/partition-dec.mod;
+		reset; 
+		model ./models/BT-int-dec.mod;
 		data ./$1;
-		drop followArcsA;
-		drop followArcsB;
-		display k;
-		for {i in k..n} {
+		for {i in $lb..$ub} {
 		        reset data;
 			data ./$1;
-		        let k := i;
+		        let tmax := i;
 			option cplex_options 'timelimit=1200'; 
 		        solve;
 		        if solve_result = 'solved' then {
-				printf '%4.2f\n', _solve_elapsed_time >> timelog.txt;
+				printf '%4.2f\t', _total_solve_elapsed_time >> timelog.txt;
 				printf '%2.2f\t', i >> objlog.txt;
 				display x;
 		                printf 'Optimal value: %d',i;
 		                break;
 		        }
+			if solve_result = 'infeasible' then {
+				if i = $ub-1 then {
+					printf 'Infeasible solution for iteration %d, but upper bound %d can now be used',i,$ub;
+					printf '%4.2f\t', _total_solve_elapsed_time >> timelog.txt;
+					printf '%2.2f\t', $ub >> objlog.txt;
+		                	break;
+				}
+			}
 			printf 'Solve result status number: %d', solve_result_num;
 			 if solve_result = 'limit' then {
-				printf '%4.2f\n', _solve_elapsed_time >> timelog.txt;
+				printf '%4.2f\t', _solve_elapsed_time >> timelog.txt;
 				printf '%2.2f\t', i >> objlog.txt;
 		                printf 'Time limit exceeded. Best value found (LB): %d',i;
 		                break;
 		        }
 
 		        printf 'Infeasible for k = %d',i;
-		
-		}
+	        }	
 
-                print '---------------------------------Solving MATCHING';
-                option relax_integrality 0;
-                reset;
-                model ./models/matching.mod;
-                data ./$1;
-                let k := 2;
-		param iterCnt default 0;
-                repeat while card(S) < n {
-                        let iterCnt := iterCnt + 1;
-                        solve;
-                        display S;
-                        display x;
-                        for {j in S} {
-                                for {v in V_G} {
-                                        if x[2,j,v] == 1 then let S := S union {v};
-                                }
-                        }
-                }
-		printf '%2.2f\n', iterCnt >> objlog.txt;
+		printf '%2.2f\n', $ub >> objlog.txt;
  
 	" > cmds.run	
-	../ampl cmds.run
+	ampl-bin cmds.run
 #	rm cmds.run
 }
 
