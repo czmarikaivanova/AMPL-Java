@@ -27,7 +27,7 @@ maximize cardM: sum{v in V_G, i in I, j in S} x[i,j,v];
 
 # Constraints:
 subject to nodeInTree {v in V_G}: sum{i in I,j in S} x[i,j,v] <= 1;
-subject to labelsInTree {i in I, j in S}: sum {v in V_G} x[i,j,v] <= 1;
+subject to labelsInTree {i in I, j in S}: sum {v in V} x[i,j,v] = 1;
 subject to sourceOnes {j in S}: x[1,j,j] = 1;
 
 #subject to noReturnFromK {j in S, i in I, l in P[i], u in V_K, v in V_G}: x[i,j,u] + x[2^l+i,j,v] <= 1;

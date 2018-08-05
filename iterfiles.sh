@@ -29,7 +29,7 @@ function makeAMPLRun {
                 data ./$1;
                 let k := 2;
 		param iterCnt default 0;
-                repeat while cardM < n {
+                repeat while card(S) < n {
                         let iterCnt := iterCnt + 1;
                         solve;
                         #display S;
@@ -104,44 +104,44 @@ function makeAMPLRun {
 
 		        printf 'Infeasible for k = %d',i;
 	        }
-#		print '---------------------------------Solving PART IP - DAG ';
-#		option relax_integrality 0;
-#		reset; 
-#		model ./models/partition-bin-dec.mod;
-#		data ./$1;
-#		drop followArcs;
-#		display k;
-#		for {i in $lb..$ub} {
-#		        reset data;
-#			data ./$1;
-#		        let k := i;
-#			option cplex_options 'timelimit=1200'; 
-#		        solve;
-#		        if solve_result = 'solved' then {
-#				printf '%4.2f\t', _total_solve_elapsed_time >> timelog.txt;
-#				printf '%2.2f\t', i >> objlog.txt;
-#			#	display x;
-#		                printf 'Optimal value: %d',i;
-#		                break;
-#			}
-#		       	if solve_result = 'infeasible' then {
-#				if i = $ub-1 then {
-#					printf 'Infeasible solution for iteration %d, but upper bound %d can now be used',i,$ub;
-#					printf '%4.2f\t', _total_solve_elapsed_time >> timelog.txt;
-#					printf '%2.2f\t', $ub >> objlog.txt;
-#		                	break;
-#				}
-#			}
-#			printf 'Solve result status number: %d', solve_result_num;
-#			 if solve_result = 'limit' then {
-#				printf '%4.2f\t', _solve_elapsed_time >> timelog.txt;
-#				printf '%2.2f\t', i >> objlog.txt;
-#		                printf 'Time limit exceeded. Best value found (LB): %d',i;
-#		                break;
-#		        }
-#
-#		        printf 'Infeasible for k = %d',i;
-#	        }	
+		print '---------------------------------Solving PART IP - DAG ';
+		option relax_integrality 0;
+		reset; 
+		model ./models/partition-bin-dec.mod;
+		data ./$1;
+		drop followArcs;
+		display k;
+		for {i in $lb..$ub} {
+		        reset data;
+			data ./$1;
+		        let k := i;
+			option cplex_options 'timelimit=1200'; 
+		        solve;
+		        if solve_result = 'solved' then {
+				printf '%4.2f\t', _total_solve_elapsed_time >> timelog.txt;
+				printf '%2.2f\t', i >> objlog.txt;
+			#	display x;
+		                printf 'Optimal value: %d',i;
+		                break;
+			}
+		       	if solve_result = 'infeasible' then {
+				if i = $ub-1 then {
+					printf 'Infeasible solution for iteration %d, but upper bound %d can now be used',i,$ub;
+					printf '%4.2f\t', _total_solve_elapsed_time >> timelog.txt;
+					printf '%2.2f\t', $ub >> objlog.txt;
+		                	break;
+				}
+			}
+			printf 'Solve result status number: %d', solve_result_num;
+			 if solve_result = 'limit' then {
+				printf '%4.2f\t', _solve_elapsed_time >> timelog.txt;
+				printf '%2.2f\t', i >> objlog.txt;
+		                printf 'Time limit exceeded. Best value found (LB): %d',i;
+		                break;
+		        }
+
+		        printf 'Infeasible for k = %d',i;
+	        }	
 		printf '%2.2f\n', $ub >> objlog.txt;
 		printf '%4.1f\n', $matchTime >> timelog.txt;
  
