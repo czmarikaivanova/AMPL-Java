@@ -4,11 +4,12 @@
 		print '---------------------------------Solving MATCHING';
                 option relax_integrality 0;
                 reset;
+	 	option cplex_options 'mipdisplay 3';	
                 model ./models/matching.mod;
-                data ./ampldata/inst-50-1-40.dat;
+                data ./ampldata/inst-100-1-102.dat;
                 let k := 2;
 		param iterCnt default 0;
-                repeat while card(S) < n {
+                repeat while cardM < n {
                         let iterCnt := iterCnt + 1;
                         solve;
                         #display S;
@@ -19,6 +20,6 @@
                                 }
                         }
                 }
-		printf 'iterCnt is %d',iterCnt;
 		print iterCnt > iterCnt.txt;
+		print _total_solve_time > matchTime.txt;
 	
