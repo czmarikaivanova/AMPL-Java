@@ -11,18 +11,13 @@ set V_K = {n};  # Set of nodes comprising the apex clique
 set V = V_G union V_K; # Set of all nodes
 set S default 0..s - 1;          # Set of Sources
 set E within {(i,j) in V cross V: i<j} default {(i,j) in V cross V: i<j && j=n};
-set E_K = {(n,n)};
-set E_GK = {(i,j) in V_G cross V_K};
 set I = 1..2^k; # set of labels in a binomial tree B_k
 set P{i in I} = {ceil(log(i)/log(2))..k-1};  # Set of exponents necessary for building the set of descendants of node i in binomial tree
-set E1 := E union E_K union E_GK;
-set A1 = {(i,j) in V cross V: (i,j) in E || (j,i) in E} union E_GK union E_K ;
 set A = {(i,j) in V cross V: (i,j) in E || (j,i) in E}; 
 
 # Variables:
 var x{i in I, j in S, v in V} binary;
 
-# Objective function: is not necessary, we are interested in a feasible solution
 maximize cardM: sum{v in V_G, i in I, j in S} x[i,j,v];
 
 # Constraints:
@@ -30,7 +25,6 @@ subject to nodeInTree {v in V_G}: sum{i in I,j in S} x[i,j,v] <= 1;
 subject to labelsInTree {i in I, j in S}: sum {v in V} x[i,j,v] = 1;
 subject to sourceOnes {j in S}: x[1,j,j] = 1;
 
-#subject to noReturnFromK {j in S, i in I, l in P[i], u in V_K, v in V_G}: x[i,j,u] + x[2^l+i,j,v] <= 1;
 
 #subject to followArcs {u in V, v in V, i in I, j in S, l in P[i]: (u,v) not in A1 and u != v}: x[i,j,u] + x[2^l+i,j,v] <=1;
 

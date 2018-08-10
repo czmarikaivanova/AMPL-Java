@@ -18,14 +18,14 @@ public class UpperBounds {
 	static Graph g;
 	public static void main(String[] args) {
 		amplFile = new File(args[0]);
-		objFile = new File(args[1]);
+		//objFile = new File(args[1]);
 		maxDeg = 0;
 		nodeCnt = findParam("param n");
 		sourceCnt = findParam("param s");
 
 		g = new Graph();
+		//System.out.println(g);
 		int ub = g.calcUpperBound();
-		System.out.println("Upper boudn: " + ub);
 		System.exit(ub);
 	}
 
@@ -176,16 +176,16 @@ public class UpperBounds {
 			int iter = 0;
 			ArrayList<Node> toBecomeSources;
 			while (sourceCnt < nodeCnt) {
-				System.out.println("Iter: " + iter);
+				//System.out.println("Iter: " + iter);
 				iter ++;
 				Collections.sort(sources);
 				toBecomeSources = new ArrayList<Node>();
 				for (Node n: sources) {
-					System.out.println("Processing node: " + n.id);
+					//System.out.println("Processing node: " + n.id);
 					if (n.isSource) {
 						Node nb = n.getNeighbor();
 						if (nb != null) {
-							System.out.println("Found neighbour: " + nb.id);
+						//	System.out.println("Found neighbour: " + nb.id);
 							nb.setSource();
 							toBecomeSources.add(nb);
 							sourceCnt++;
@@ -195,6 +195,19 @@ public class UpperBounds {
 				sources.addAll(toBecomeSources);
 			}
 			return iter;
+		}
+
+		@Override
+		public String toString() {
+			String s = "";
+			for (Node n: nodes) {
+				s = s + "Node " + n.id + "\n";
+				for (Node nb: n.neighbours) {
+					s = s + nb.id + " ";
+				}
+				s = s + "\n";
+			}
+			return s;
 		}
 	}
 	

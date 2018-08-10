@@ -6,7 +6,7 @@
                 reset;
 	 	option cplex_options 'mipdisplay 3';	
                 model ./models/matching.mod;
-                data ./ampldata/inst-50-1-115.dat;
+                data ./ampldata/inst-50-1-152.dat;
                 let k := 2;
 		param iterCnt default 0;
                 repeat while card(S) < n {
@@ -21,5 +21,5 @@
                         }
                 }
 		print iterCnt > iterCnt.txt;
-		print _total_solve_time > matchTime.txt;
+		print _ampl_time + _total_solve_time > matchTime.txt;
 	

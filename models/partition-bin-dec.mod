@@ -40,7 +40,7 @@ subject to followArcsA {u in V_G, i in I, l in P[i], t in S}: x[i,t,n] +x[i,t,u]
 
 subject to followArcsB {u in V_G, i in I, l in P[i], t in S}: x[i,t,n] +x[2^l+i,t,u] + sum {v in V_G: (u,v) not in A} x[i,t,v] <= 1;
 
-subject to strength1 {u in V_G, i in I, l in P[i], t in S}: sum{v in V_G: (u,v) not in A} x[2^l+i,t,v]<= sum{w in V_G, v in V_G: (u,w) not in A and (u,v) in A} x[i,t,v];
+#subject to strength1 {u in V_G, i in I, l in P[i], t in S}: sum{v in V_G: (u,v) not in A} x[2^l+i,t,v]<= sum{w in V_G, v in V_G: (u,w) not in A and (u,v) in A} x[i,t,v];
 
 #symmetry removal
 subject to symrem {i in I, j in P[i], l in P[i],t in S: j < l}: x[2^j+i,t,n] <= x[2^l+i,t,n];
