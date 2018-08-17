@@ -118,7 +118,8 @@ function makeAMPLRun {
 		touch cmds.run
 		echo "created cmds"
 		echo "  
-			option solver '/opt/ibm/ILOG/CPLEX_Studio1251/cplex/bin/x86-64_sles10_4.1/cplexamp';
+			#option solver '/opt/ibm/ILOG/CPLEX_Studio1251/cplex/bin/x86-64_sles10_4.1/cplexamp';
+			option solver '../ampl/cplex';
 			option cplex_options 'timing 1';
 			option eexit -10000;
 			print '---------------------------------Solving BT-int-opt';		
@@ -144,7 +145,7 @@ function makeAMPLRun {
 			printf '\n' >> timelog.txt;
  
 		" >> cmds.run	
-		ampl-bin cmds.run
+		~/ampl/ampl cmds.run
 	fi
 #	rm cmds.run
 }

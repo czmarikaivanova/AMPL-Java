@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.stream.Stream;
 
 public class LowerBounds {
 
@@ -78,8 +79,13 @@ public class LowerBounds {
 	}
 	
 	private static int degSecBound() {
-		Integer[] degrees = new Integer[nodeCnt];
-		for (int i = 0; i < nodeCnt; i++) {
+		Integer[] degrees = new Integer[nodeCnt - sourceCnt];
+		Integer[] sourceDegrees = new Integer[sourceCnt];
+		Integer[] both = null;
+		for (int i = 0; i < sourceCnt; i++) {
+			sourceDegrees[i] = 0;
+		}
+		for (int i = 0; i < nodeCnt-sourceCnt; i++) {
 			degrees[i] = 0;
 		}
 
@@ -99,12 +105,24 @@ public class LowerBounds {
 		for (String eStr: individualEdgesStr) {
 			if (eStr.contains("(")) { // it is an ege string and not 'param' etc
 				int num = Integer.parseInt(eStr.substring(eStr.indexOf('(') + 1, eStr.indexOf(',')));
-				degrees[num]++;
+				if (num < sourceCnt) {
+					sourceDegrees[num]++;
+				}
+				else {
+					degrees[num - sourceCnt]++;
+				}
 				num = Integer.parseInt(eStr.substring(eStr.indexOf(',') + 1, eStr.indexOf(')')));
-				degrees[num]++;
+				if (num < sourceCnt) {
+					sourceDegrees[num]++;
+				}
+				else {
+					degrees[num - sourceCnt]++;
+				}
 			}
 		}
+		Arrays.sort(sourceDegrees, Collections.reverseOrder());
 		Arrays.sort(degrees, Collections.reverseOrder());
+		both = Stream.concat(Arrays.stream(sourceDegrees), Arrays.stream(degrees)).toArray(Integer[]::new);
 		maxDeg = degrees[0];
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -113,7 +131,19 @@ public class LowerBounds {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		int db =  degSec(degrees);
+		//System.out.println("sourceDegrees[i]");
+		//for (Integer i: sourceDegrees) {
+		//	System.out.println(i);
+		//}
+		//System.out.println("degrees[i]");
+		//for (Integer i: degrees) {
+		//	System.out.println(i);
+		//}
+		//System.out.println("both[i]");
+		//for (Integer i: both) {
+		//	System.out.println(i);
+		//}
+		int db =  degSec(both);
 		//System.out.println("Degree bound: " + db);
 		return db;
 	}
