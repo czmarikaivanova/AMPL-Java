@@ -16,7 +16,7 @@ set N{i in V} within V = {j in V: (i,j) in E || (j,i) in E};
 var x{(i,j) in A, t in 1..tmax} binary;
 
 # Objective function:
-minimize time: 0;
+minimize objval: 0;
 
 # Constraints:
 

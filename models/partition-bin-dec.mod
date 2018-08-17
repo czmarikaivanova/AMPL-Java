@@ -1,10 +1,10 @@
 # Input parameters:
-param k; # Time limit
+#iparam k; # Time limit
 
 # Set cardinalities:
 param n;      # Number of nodes. Should be of size 2^k*|S|
 param s;      # Number of sources
-param tmax = n - s;
+param tmax default n - s;
 # Sets:
 set V_G = 0..n - 1;        # Set of nodes of the original graph
 set V_K = {n};  # Set of nodes comprising the apex clique
@@ -13,8 +13,8 @@ set S = 0..s - 1;          # Set of Sources
 set E within {(i,j) in V cross V: i<j} default {(i,j) in V cross V: i<j && j=n};
 set E_K = {(n,n)};
 set E_GK = {(i,j) in V_G cross V_K};
-set I = 1..2^k; # set of labels in a binomial tree B_k
-set P{i in I} = {ceil(log(i)/log(2))..k-1};  # Set of exponents necessary for building the set of descendants of node i in binomial tree
+set I = 1..2^tmax; # set of labels in a binomial tree B_k
+set P{i in I} = {ceil(log(i)/log(2))..tmax-1};  # Set of exponents necessary for building the set of descendants of node i in binomial tree
 set E1 := E union E_K union E_GK;
 set A1 = {(i,j) in V cross V: (i,j) in E || (j,i) in E} union E_GK union E_K ;
 set A = {(i,j) in V cross V: (i,j) in E || (j,i) in E}; 
@@ -25,7 +25,7 @@ set A = {(i,j) in V cross V: (i,j) in E || (j,i) in E};
 var x{i in I, j in S, v in V} binary;
 
 # Objective function: is not necessary, we are interested in a feasible solution
-minimize zero: 0;
+minimize objval: 0;
 
 # Constraints:
 subject to nodeInTree {v in V_G}: sum{i in I,j in S} x[i,j,v] = 1;

@@ -1,5 +1,6 @@
 bin/
 data/
+instances/
 *.log
 *.aux
 *.swp
@@ -8,3 +9,6 @@ data/
 *.class
 *.jpg
 *.dat
+cmds.run
+objlog.txt
+timelog.txt

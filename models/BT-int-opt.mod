@@ -17,7 +17,7 @@ var x{(i,j) in A, t in 1..tmax} binary;
 var c >= 0, <= tmax, integer;
 
 # Objective function:
-minimize time: c;
+minimize objval: c;
 
 # Constraints:
 

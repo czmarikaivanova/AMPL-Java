@@ -15,8 +15,10 @@ set N{i in V} within V = {j in V: (i,j) in E || (j,i) in E};
 # Variables:
 var x{(i,j) in A, t in 1..tmax} binary;
 
+set SS = {(u,v) in E: u in S and v in S};
+
 # Objective function:
-maximize assignments: sum{(u,v) in A, t in 1..tmax} x[u,v,t];
+maximize objval: sum{v in V, t in 1..tmax, u in N[v]: v not in S} x[u,v,t];
 
 # Constraints:
 

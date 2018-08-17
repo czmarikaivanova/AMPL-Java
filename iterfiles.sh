@@ -11,6 +11,63 @@ function ceil {
         else {return x/1 + 1 }}} ; ceil($1)" | bc
 }
 
+function decProcedure {
+	echo "
+		print '-----------------xxx-------------Solving $1';		
+		option relax_integrality 0;
+		reset; 
+		model ./models/$1;
+		#data ./$2;
+		param tlim default 1200;
+		for {i in $3..$4} {
+		        reset data;
+			data ./$2;
+		        let tmax := i;
+			let tlim := tlim - _solve_time;
+			option cplex_options ('timelimit ' & tlim); 
+			if '$1' = 'BT-int-com.mod' or '$1' = 'partition-bin-com.mod' then {
+				option cplex_options \$cplex_options 'mipdisplay 2 mipinterval 1 absmipgap 0.99999 lowercutoff $5'; 
+			}
+			else {
+				option cplex_options \$cplex_options 'mipdisplay 2 mipinterval 1 absmipgap 0.99999'; 
+			}
+		        solve;
+		        if solve_result = 'solved' then {
+				if '$1' = 'BT-int-com.mod' or '$1' = 'partition-bin-com.mod' then {
+					if objval = n-s then {
+						printf '%4.2f\t', _total_solve_elapsed_time  >> timelog.txt;
+						printf '%2.0f\t', i >> objlog.txt;
+		        		        printf 'Optimal value: %d',i;
+		        		        break;
+					}
+				}
+				else {
+					printf '%4.2f\t', _total_solve_elapsed_time  >> timelog.txt;
+					printf '%2.0f\t', i >> objlog.txt;
+		        	        printf 'Optimal value: %d',i;
+		        	        break;
+				}
+		        }
+			if solve_result = 'infeasible' then {
+				if i = $4-1 then {
+					printf 'Infeasible solution for iteration %d, but upper bound %d can now be used',i,$4;
+					printf '%4.2f\t',  _total_solve_elapsed_time  >> timelog.txt;
+					printf '%2.0f\t', $4 >> objlog.txt;
+		                	break;
+				}
+			}
+			printf 'Solve result status number: %d', solve_result_num;
+			 if solve_result = 'limit' then {
+				printf '%4.2f\t',  _total_solve_elapsed_time  >> timelog.txt;
+				printf '%2.0f\t', i >> objlog.txt;
+		                printf 'Time limit exceeded. Best value found (LB): %d',i;
+		                break;
+		        }
+
+		        printf 'Infeasible for k = %d',i;
+		}
+	" >> cmds.run
+}
 
 function makeAMPLRun {
 	logid $1
@@ -44,7 +101,7 @@ function makeAMPLRun {
 #                        }
 #                }
 #		print iterCnt > iterCnt.txt;
-#		print _ampl_time + _total_solve_time > matchTime.txt;
+#		print  _total_solve_elapsed_time > matchTime.txt;
 #	" > cmds-ub.run
 #	ampl-bin cmds-ub.run
 #	read ub < iterCnt.txt	
@@ -59,101 +116,34 @@ function makeAMPLRun {
 		echo "0" >> timelog.txt
 	else
 		touch cmds.run
+		echo "created cmds"
 		echo "  
 			option solver '/opt/ibm/ILOG/CPLEX_Studio1251/cplex/bin/x86-64_sles10_4.1/cplexamp';
 			option cplex_options 'timing 1';
 			option eexit -10000;
-#			print '---------------------------------Solving BT-int-opt';		
-#			reset;
-#			model ./models/BT-int-opt.mod;
-#			data ./$1;
-#			let tmax := $ub;		
-#			option relax_integrality 0;
-#		 	option cplex_options 'mipdisplay 3';	
-#			option cplex_options 'timelimit=1200'; 
-#			solve;
-#			# display x;
-#			printf '%4.2f\t', _ampl_time + _total_solve_time  >> timelog.txt;
-#			printf '%2.2f\t', time >> objlog.txt;
-			print '---------------------------------Solving BT-int-dec';		
+			print '---------------------------------Solving BT-int-opt';		
+			reset;
+			model ./models/BT-int-opt.mod;
+			data ./$1;
+			let tmax := $ub;		
 			option relax_integrality 0;
-			reset; 
 		 	option cplex_options 'mipdisplay 3';	
-			model ./models/BT-int-dec.mod;
-			data ./$1;
-			for {i in $lb..$ub} {
-			        reset data;
-				data ./$1;
-			        let tmax := i;
-				option cplex_options 'timelimit=1200'; 
-			        solve;
-			        if solve_result = 'solved' then {
-					printf '%4.2f\t', _ampl_time + _total_solve_time  >> timelog.txt;
-					printf '%2.2f\t', i >> objlog.txt;
-				#	display x;
-			                printf 'Optimal value: %d',i;
-			                break;
-			        }
-				if solve_result = 'infeasible' then {
-					if i = $ub-1 then {
-						printf 'Infeasible solution for iteration %d, but upper bound %d can now be used',i,$ub;
-						printf '%4.2f\t', _ampl_time + _total_solve_time  >> timelog.txt;
-						printf '%2.2f\t', $ub >> objlog.txt;
-			                	break;
-					}
-				}
-				printf 'Solve result status number: %d', solve_result_num;
-				 if solve_result = 'limit' then {
-					printf '%4.2f\t', _ampl_time + _total_solve_time  >> timelog.txt;
-					printf '%2.2f\t', i >> objlog.txt;
-			                printf 'Time limit exceeded. Best value found (LB): %d',i;
-			                break;
-			        }
-
-			        printf 'Infeasible for k = %d',i;
-		        }
-			print '---------------------------------Solving partition-bin-dec ';
-			option relax_integrality 0;
-			reset; 
-			model ./models/BT-int-com.mod;
-			data ./$1;
-			#drop followArcs;
-			for {i in $lb..$ub} {
-			        reset data;
-				data ./$1;
-			        let tmax := i;
-				option cplex_options 'timelimit=1200'; 
-			        solve;
-			        if solve_result = 'solved' then {
-					printf '%4.2f\t', _ampl_time + _total_solve_time  >> timelog.txt;
-					printf '%2.2f\t', i >> objlog.txt;
-				#	display x;
-			                printf 'Optimal value: %d',i;
-			                break;
-				}
-			       	if solve_result = 'infeasible' then {
-					if i = $ub-1 then {
-						printf 'Infeasible solution for iteration %d, but upper bound %d can now be used',i,$ub;
-						printf '%4.2f\t', _ampl_time + _total_solve_time  >> timelog.txt;
-						printf '%2.2f\t', $ub >> objlog.txt;
-			                	break;
-					}
-				}
-				printf 'Solve result status number: %d', solve_result_num;
-				 if solve_result = 'limit' then {
-					printf '%4.2f\t', _ampl_time + _total_solve_time  >> timelog.txt;
-					printf '%2.2f\t', i >> objlog.txt;
-			                printf 'Time limit exceeded. Best value found (LB): %d',i;
-			                break;
-			        }
-
-			        printf 'Infeasible for k = %d',i;
-		        }	
-			printf '%2.2f\n', $ub >> objlog.txt;
+			option cplex_options 'timelimit=1200'; 
+			solve;
+			# display x;
+			printf '%4.2f\t', _total_solve_elapsed_time  >> timelog.txt;
+			printf '%2.0f\t', objval >> objlog.txt;
+		" > cmds.run
+		decProcedure BT-int-dec.mod $1 $lb $ub $2
+		decProcedure BT-int-com.mod $1 $lb $ub $2
+		decProcedure partition-bin-dec.mod $1 $lb $ub $2
+		decProcedure partition-bin-com.mod $1 $lb $ub $2
+		echo "
+			printf '%2.0f\n', $ub >> objlog.txt;
 #			printf '%4.1f\n', $matchTime >> timelog.txt;
 			printf '\n' >> timelog.txt;
  
-		" > cmds.run	
+		" >> cmds.run	
 		ampl-bin cmds.run
 	fi
 #	rm cmds.run
@@ -171,6 +161,9 @@ case $1 in
 		       while IFS='' read -r line || [[ -n "$line" ]]; do
 				if [ "$i" -eq 1 ]; then
 					nodeCnt=$(echo $line | awk '{print $1}')
+					edgeCnt=$(echo $line | awk '{print $2}')
+					printf "$nodeCnt \t $edgeCnt \t" >> objlog.txt
+					printf "$nodeCnt \t $edgeCnt \t" >> timelog.txt
 					myFrac=$(echo "$nodeCnt/$sourceCnt" | bc -l);
 					myLog=$(echo $myFrac | awk '{printf "%11.9f\n",log($1)/log(2)}')
 					paramK=`awk -v ml=$myLog 'BEGIN{printf("%.f\n", ml)}'`
@@ -180,7 +173,7 @@ case $1 in
 					touch "$dataFileName"
 					echo -n > "$dataFileName"
 					echo "# $RANDOM" >> $dataFileName	
-					echo "param k := $paramK;" >> "$dataFileName"
+					#echo "param k := $paramK;" >> "$dataFileName"
 					echo "param n := $nodeCnt;" >> "$dataFileName"
 					echo "param s := $sourceCnt;" >> "$dataFileName"
 					echo "set E :=" >> "$dataFileName"
@@ -192,7 +185,8 @@ case $1 in
 				i=$((i+1))
 			done < "$filename" 
 			echo ";" >> "$dataFileName"
-			makeAMPLRun "$dataFileName"
+			lco=`echo $nodeCnt'-'$sourceCnt'-0.0000001' | bc -l`
+			makeAMPLRun "$dataFileName" "$lco"
 		done
 	;;
 	ampl)
